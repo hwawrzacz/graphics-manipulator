@@ -1,0 +1,12 @@
+mat-toolbar {
+  mat-toolbar-row {
+    &:nth-child(1) {
+      display: flex;
+      justify-content: space-between;
+    }
+    &:nth-child(2) {
+      max-height: 0;
+    }
+  }
+}
+
