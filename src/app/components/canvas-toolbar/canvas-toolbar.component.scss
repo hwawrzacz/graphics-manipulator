@@ -1,29 +1,36 @@
-@use '../../../styles';
+@use '../../../variables' as *;
+
 .canvas-toolbar-wrapper {
   background-color: none !important;
 }
 
 button {
+  position: relative;
+
   &:not(:first-child) {
     margin-left: 8px;
   }
-
   // Active mode indicator
+  &:before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 8px;
+    transform: translateX(-50%) translateY(-50%);
+
+    width: 0;
+    height: 0;
+    border-radius: 4px;
+    background-color: #FFBF00;
+
+    transition: $transition-normal;
+  }
+
+  // Active mode visible
   &.active {
-    position: relative;
-
     &:before {
-      content: '';
-      position: absolute;
-      top: 50%;
-      left: 8px;
-
       width: 8px;
       height: 8px;
-      border-radius: 4px;
-      background-color: #FFBF00;
-
-      transform: translateY(-50%);
     }
   }
 }

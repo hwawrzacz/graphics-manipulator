@@ -1,6 +1,8 @@
+@use '../../../variables' as *;
+
 mat-toolbar {
   mat-toolbar-row {
-    transition: 300ms;
+    transition: $transition-normal;
 
     &:nth-child(1) {
       display: flex;
@@ -16,7 +18,7 @@ mat-toolbar {
 }
 
 mat-icon {
-  transition: 300ms;
+  transition: $transition-normal;
 }
 
 .expanded {
