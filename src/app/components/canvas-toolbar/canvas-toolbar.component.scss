@@ -4,6 +4,13 @@
   background-color: none !important;
 }
 
+.canvas-toolbar-wrapper,
+.canvas-controls {
+  display: flex;
+  flex: 1 1;
+  justify-content: space-between;
+}
+
 button {
   position: relative;
 

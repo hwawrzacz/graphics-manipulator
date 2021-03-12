@@ -45,6 +45,7 @@ export class CanvasComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit(): void {
     this.observeDrawingModeChange();
+    this.observeCanvasClear();
   }
 
   private observeDrawingModeChange(): void {
@@ -68,6 +69,16 @@ export class CanvasComponent implements OnInit, AfterViewInit {
       default:
         this.openSnackBar('Selected mode is not supported yet');
     }
+  }
+
+  private observeCanvasClear(): void {
+    this._canvasStateService.clear$
+      .pipe(
+        tap(() => {
+          this.clearCanvas();
+          this.clearPreviousPoint()
+        })
+      ).subscribe();
   }
 
   // Mouse listeners
@@ -137,6 +148,10 @@ export class CanvasComponent implements OnInit, AfterViewInit {
     }
 
     this.assingPreviousPointFromPoint(newPoint);
+  }
+
+  private clearCanvas(): void {
+    this._context?.clearRect(0, 0, this._width, this._height);
   }
 
   private clearPreviousPoint() {

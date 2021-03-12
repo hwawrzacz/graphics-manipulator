@@ -45,4 +45,12 @@ export class CanvasToolbarComponent implements OnInit {
   public enableCircleMode(): void {
     this._canvasStateService.drawingMode$.next(DrawingMode.CIRCLE);
   }
+
+  public clearCanvas(): void {
+    this._canvasStateService.clear$.next();
+  }
+
+  public openHelpWindow(): void {
+    console.log('open help window');
+  }
 }

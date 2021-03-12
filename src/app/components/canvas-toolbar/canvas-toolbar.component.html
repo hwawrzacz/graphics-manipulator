@@ -1,17 +1,28 @@
 <div class="canvas-toolbar-wrapper">
-  <button mat-button [class.active]="isDrawingMode" (click)="enableDrawingMode()">
-    <mat-icon> gesture </mat-icon> <span>Drawing</span>
-  </button>
+  <div class="canvas-controls">
+    <div class="drawing-modes">
+      <button mat-button [class.active]="isDrawingMode" (click)="enableDrawingMode()">
+        <mat-icon> gesture </mat-icon> <span>Drawing</span>
+      </button>
 
-  <button mat-button [class.active]="isStraightLineMode" (click)="enableStraightLineMode()">
-    <mat-icon> horizontal_rule </mat-icon> <span>Straight line</span>
-  </button>
+      <button mat-button [class.active]="isStraightLineMode" (click)="enableStraightLineMode()">
+        <mat-icon> horizontal_rule </mat-icon> <span>Straight line</span>
+      </button>
 
-  <button mat-button [class.active]="isSquareMode" (click)="enableSquareMode()">
-    <mat-icon> crop_square </mat-icon> <span>Square</span>
-  </button>
+      <button mat-button [class.active]="isSquareMode" (click)="enableSquareMode()">
+        <mat-icon> crop_square </mat-icon> <span>Square</span>
+      </button>
 
-  <button mat-button [class.active]="isCircleMode" (click)="enableCircleMode()">
-    <mat-icon> panorama_fish_eye </mat-icon> <span>Circle</span>
+      <button mat-button [class.active]="isCircleMode" (click)="enableCircleMode()">
+        <mat-icon> panorama_fish_eye </mat-icon> <span>Circle</span>
+      </button>
+    </div>
+
+    <button mat-button (click)="clearCanvas()">
+      <mat-icon color="warn"> format_paint </mat-icon> <span>Clear</span>
+    </button>
+  </div>
+  <button mat-icon-button (click)="openHelpWindow()">
+    <mat-icon> help </mat-icon> <span></span>
   </button>
 </div>

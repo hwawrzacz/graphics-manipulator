@@ -17,6 +17,10 @@ mat-toolbar {
   }
 }
 
+app-canvas-toolbar {
+  width: 100%;
+}
+
 mat-icon {
   transition: $transition-normal;
 }
