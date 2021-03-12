@@ -7,7 +7,7 @@ import { Component, Input, OnInit } from '@angular/core';
 })
 export class ToolbarComponent implements OnInit {
   private _title = '';
-  private _expanded = false;
+  private _expanded = true;
 
   //#region Getters and setters
   @Input('title')
@@ -29,8 +29,6 @@ export class ToolbarComponent implements OnInit {
   }
 
   public toggleToolbar(): void {
-    console.log('expanded');
-
     this._expanded = !this._expanded;
   }
 }

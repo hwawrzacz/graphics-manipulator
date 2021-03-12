@@ -1,9 +1,8 @@
 <div class="canvas-toolbar-wrapper">
-  <button mat-icon-button (click)="enableDrawingMode()" [matTooltip]="'Drawing'" [matTooltipPosition]="'below'">
-    <mat-icon> gesture </mat-icon>
+  <button mat-button [class.active]="isDrawingMode" (click)="enableDrawingMode()">
+    <mat-icon> gesture </mat-icon> <span>Drawing</span>
   </button>
-  <button mat-icon-button (click)="enableStraightLineMode()" [matTooltip]="'Straight line'"
-    [matTooltipPosition]="'below'">
-    <mat-icon> horizontal_rule </mat-icon>
+  <button mat-button [class.active]="isStraightLineMode" (click)="enableStraightLineMode()">
+    <mat-icon> horizontal_rule </mat-icon> <span>Straight line</span>
   </button>
 </div>
