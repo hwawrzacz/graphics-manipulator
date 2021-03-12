@@ -1,3 +1,10 @@
+.app-wrapper {
+  display: flex;
+  flex: 1 1;
+  height: 100vh;
+  flex-direction: column;
+}
+
 mat-toolbar {
   mat-toolbar-row {
     &:nth-child(1) {
@@ -13,4 +20,7 @@ mat-toolbar {
 main {
   display: flex;
   justify-content: center;
+  flex: 1 1;
+  align-items: center;
+  width: 100%;
 }
