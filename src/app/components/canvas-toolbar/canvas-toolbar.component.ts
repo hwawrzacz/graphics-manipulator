@@ -18,15 +18,31 @@ export class CanvasToolbarComponent implements OnInit {
   get isStraightLineMode(): boolean {
     return this._canvasStateService.drawingMode$.value === DrawingMode.STRAIGHT_LINE;
   }
+
+  get isSquareMode(): boolean {
+    return this._canvasStateService.drawingMode$.value === DrawingMode.SQUARE;
+  }
+
+  get isCircleMode(): boolean {
+    return this._canvasStateService.drawingMode$.value === DrawingMode.CIRCLE;
+  }
   //#endregion
 
   ngOnInit(): void { }
+
+  public enableDrawingMode(): void {
+    this._canvasStateService.drawingMode$.next(DrawingMode.DRAWING);
+  }
 
   public enableStraightLineMode(): void {
     this._canvasStateService.drawingMode$.next(DrawingMode.STRAIGHT_LINE);
   }
 
-  public enableDrawingMode(): void {
-    this._canvasStateService.drawingMode$.next(DrawingMode.DRAWING);
+  public enableSquareMode(): void {
+    this._canvasStateService.drawingMode$.next(DrawingMode.SQUARE);
+  }
+
+  public enableCircleMode(): void {
+    this._canvasStateService.drawingMode$.next(DrawingMode.CIRCLE);
   }
 }
