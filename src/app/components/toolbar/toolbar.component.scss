@@ -1,0 +1,21 @@
+mat-toolbar {
+  mat-toolbar-row {
+    transition: 300ms;
+
+    &:nth-child(1) {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    &:nth-child(2) {
+      visibility: hidden;
+      max-height: 0;
+      overflow: hidden;
+    }
+  }
+}
+
+.expanded {
+  visibility: visible !important;
+  max-height: 48px !important;
+}

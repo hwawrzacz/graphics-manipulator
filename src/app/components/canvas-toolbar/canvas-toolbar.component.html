@@ -1,1 +1,9 @@
-<p>canvas-toolbar works!</p>
+<div class="canvas-toolbar-wrapper">
+  <button mat-icon-button (click)="enableDrawingMode()" [matTooltip]="'Drawing'" [matTooltipPosition]="'below'">
+    <mat-icon> gesture </mat-icon>
+  </button>
+  <button mat-icon-button (click)="enableStraightLineMode()" [matTooltip]="'Straight line'"
+    [matTooltipPosition]="'below'">
+    <mat-icon> horizontal_rule </mat-icon>
+  </button>
+</div>

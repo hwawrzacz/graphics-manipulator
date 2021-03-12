@@ -6,10 +6,15 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./canvas-toolbar.component.scss']
 })
 export class CanvasToolbarComponent implements OnInit {
-
   constructor() { }
 
-  ngOnInit(): void {
+  ngOnInit(): void { }
+
+  public enableStraightLineMode(): void {
+
   }
 
+  public enableDrawingMode(): void {
+
+  }
 }

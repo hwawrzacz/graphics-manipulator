@@ -5,18 +5,6 @@
   flex-direction: column;
 }
 
-mat-toolbar {
-  mat-toolbar-row {
-    &:nth-child(1) {
-      display: flex;
-      justify-content: space-between;
-    }
-    &:nth-child(2) {
-      max-height: 0;
-    }
-  }
-}
-
 main {
   display: flex;
   justify-content: center;

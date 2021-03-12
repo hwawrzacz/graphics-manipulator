@@ -1,1 +1,17 @@
-<p>toolbar works!</p>
+<mat-toolbar color="primary">
+  <mat-toolbar-row class="mat-elevation-z2">
+    <button mat-icon-button>
+      <mat-icon> menu </mat-icon>
+    </button>
+
+    <span>{{ title }}</span>
+
+    <button mat-icon-button>
+      <mat-icon (click)="toggleToolbar()"> expand_more </mat-icon>
+    </button>
+  </mat-toolbar-row>
+
+  <mat-toolbar-row color="default" [ngClass]="{'expanded': expanded}">
+    <app-canvas-toolbar></app-canvas-toolbar>
+  </mat-toolbar-row>
+</mat-toolbar>

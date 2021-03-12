@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 
 @Component({
   selector: 'app-toolbar',
@@ -6,10 +6,31 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./toolbar.component.scss']
 })
 export class ToolbarComponent implements OnInit {
+  private _title = '';
+  private _expanded = false;
+
+  //#region Getters and setters
+  @Input('title')
+  set title(value: string) {
+    this._title = value;
+  }
+  get title(): string {
+    return this._title;
+  }
+
+  get expanded(): boolean {
+    return this._expanded;
+  }
+  //#endregion
 
   constructor() { }
 
   ngOnInit(): void {
   }
 
+  public toggleToolbar(): void {
+    console.log('expanded');
+
+    this._expanded = !this._expanded;
+  }
 }
