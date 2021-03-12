@@ -1,11 +1,13 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { DrawingMode } from 'src/app/model/canvas-mode';
 import { CanvasStateService } from 'src/app/services/canvas-state.service';
 
 @Component({
   selector: 'app-canvas-toolbar',
   templateUrl: './canvas-toolbar.component.html',
-  styleUrls: ['./canvas-toolbar.component.scss']
+  styleUrls: ['./canvas-toolbar.component.scss'],
+  // Disabned encapsulation allows to apply custom tooltip class
+  encapsulation: ViewEncapsulation.None,
 })
 export class CanvasToolbarComponent implements OnInit {
   constructor(private _canvasStateService: CanvasStateService) { }

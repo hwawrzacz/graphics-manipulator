@@ -13,10 +13,18 @@
 
 button {
   position: relative;
+  transition: $transition-normal;
 
   &:not(:first-child) {
     margin-left: 8px;
   }
+
+  span.button-label {
+    display: inline-block;
+    max-width: 80px;
+    transition: $transition-normal;
+  }
+
   // Active mode indicator
   &:before {
     content: '';
@@ -30,7 +38,7 @@ button {
     border-radius: 4px;
     background-color: #FFBF00;
 
-    transition: $transition-normal;
+    transition: inherit;
   }
 
   // Active mode visible
@@ -39,5 +47,34 @@ button {
       width: 8px;
       height: 8px;
     }
+  }
+
+  &.clear-canvas {
+    margin-left: $spacing-big;
+  }
+}
+
+.tooltip-visibility {
+  visibility: hidden;
+}
+
+
+@media screen and (max-width: 800px) {
+  button {
+    padding: 0 $spacing-small;
+    
+    &:not(:first-child) {
+      margin-left: 0;
+    }
+    
+    span.button-label {
+      display: inline-block;
+      max-width: 0;
+      overflow: hidden;
+    }
+  }
+
+  .tooltip-visibility {
+    visibility: visible;
   }
 }

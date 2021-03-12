@@ -152,6 +152,7 @@ export class CanvasComponent implements OnInit, AfterViewInit {
 
   private clearCanvas(): void {
     this._context?.clearRect(0, 0, this._width, this._height);
+    this._context?.beginPath();
   }
 
   private clearPreviousPoint() {
