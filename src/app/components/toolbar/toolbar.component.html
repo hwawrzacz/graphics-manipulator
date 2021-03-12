@@ -1,5 +1,5 @@
 <mat-toolbar color="primary">
-  <mat-toolbar-row class="mat-elevation-z2">
+  <mat-toolbar-row class="mat-elevation-z4">
     <button mat-icon-button>
       <mat-icon> menu </mat-icon>
     </button>
@@ -7,7 +7,7 @@
     <span>{{ title }}</span>
 
     <button mat-icon-button>
-      <mat-icon (click)="toggleToolbar()"> expand_more </mat-icon>
+      <mat-icon (click)="toggleToolbar()" [class.upside-down]="expanded"> expand_more </mat-icon>
     </button>
   </mat-toolbar-row>
 

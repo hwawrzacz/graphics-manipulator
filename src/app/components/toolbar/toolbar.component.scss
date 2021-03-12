@@ -15,7 +15,15 @@ mat-toolbar {
   }
 }
 
+mat-icon {
+  transition: 300ms;
+}
+
 .expanded {
   visibility: visible !important;
   max-height: 48px !important;
+}
+
+.upside-down {
+  transform: rotate(180deg);
 }
