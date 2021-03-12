@@ -1,8 +1,10 @@
-import { AfterViewInit, Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
-import { BehaviorSubject, fromEvent } from 'rxjs';
+import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { fromEvent, Subject } from 'rxjs';
 import { filter, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { DrawingMode } from 'src/app/model/canvas-mode';
 import { Point } from 'src/app/model/point';
+import { CanvasStateService } from 'src/app/services/canvas-state.service';
 
 @Component({
   selector: 'app-canvas',
@@ -15,7 +17,7 @@ export class CanvasComponent implements OnInit, AfterViewInit {
   private _context?: CanvasRenderingContext2D | null;
   private _prevPoint?: Point;
   private _moving = false;
-  private _drawingMode$ = new BehaviorSubject(DrawingMode.DRAWING);
+  private _drawingModeChange$ = new Subject();
 
   @ViewChild('canvas')
   private _canvas?: ElementRef<HTMLCanvasElement>;
@@ -32,18 +34,12 @@ export class CanvasComponent implements OnInit, AfterViewInit {
     return this._height;
   }
 
-  @Input('drawingMode')
-  set drawingMode(value: DrawingMode) {
-    if (value !== this._drawingMode$.value) {
-      this._drawingMode$.next(value);
-    }
-  }
   get drawingMode(): DrawingMode {
-    return this._drawingMode$.value;
+    return this._canvasStateService.drawingMode$.value;
   }
   //#endregion
 
-  constructor() { }
+  constructor(private _canvasStateService: CanvasStateService, private _snackBar: MatSnackBar) { }
 
   ngOnInit(): void { }
 
@@ -52,21 +48,32 @@ export class CanvasComponent implements OnInit, AfterViewInit {
   }
 
   private observeDrawingModeChange(): void {
-    this._drawingMode$
+    this._canvasStateService.drawingMode$
       .pipe(
         filter(() => !!this._canvas),
         tap(mode => {
-          if (mode === DrawingMode.DRAWING) {
-            this._context = this._canvas!.nativeElement.getContext('2d');
-          } else if (mode === DrawingMode.STRAIGHT_LINE) {
-            // Handle drawing straight line
-          }
+          this._drawingModeChange$.next();
+          this.switchMode(mode);
         })
       ).subscribe();
   }
 
+  private switchMode(mode: DrawingMode): void {
+    switch (mode) {
+      case DrawingMode.DRAWING:
+        this._context = this._canvas!.nativeElement.getContext('2d');
+        this.initializeDrawingListener();
+        break;
+
+      default:
+        this.openSnackBar('Selected mode is not supported yet');
+    }
+  }
+
   // Mouse listeners
   private initializeDrawingListener() {
+    this.openSnackBar('Drawing initialized');
+
     fromEvent<MouseEvent>(this._canvas?.nativeElement!, 'mousedown')
       .pipe(
         tap(e => this.onDrawPoint(e)),
@@ -80,7 +87,7 @@ export class CanvasComponent implements OnInit, AfterViewInit {
               )))
         ),
         tap(e => this.onDrawLine(e)),
-        takeUntil(this._drawingMode$)
+        takeUntil(this._drawingModeChange$)
       )
       .subscribe();
   }
@@ -145,5 +152,9 @@ export class CanvasComponent implements OnInit, AfterViewInit {
   private assingPreviousPointFromPoint(point: Point): void {
     // console.log('point reassigned form point');
     this._prevPoint = { x: point.x, y: point.y };
+  }
+
+  private openSnackBar(message: string): void {
+    this._snackBar.open(message, undefined, { duration: 3000 });
   }
 }

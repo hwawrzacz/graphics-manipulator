@@ -9,6 +9,7 @@ import { MatToolbarModule } from '@angular/material/toolbar'
 import { MatButtonModule } from '@angular/material/button'
 import { MatIconModule } from '@angular/material/icon'
 import { MatTooltipModule } from '@angular/material/tooltip'
+import { MatSnackBarModule } from '@angular/material/snack-bar'
 import { CommonModule } from '@angular/common';
 import { CanvasToolbarComponent } from './components/canvas-toolbar/canvas-toolbar.component';
 import { ToolbarComponent } from './components/toolbar/toolbar.component';
@@ -27,7 +28,8 @@ import { ToolbarComponent } from './components/toolbar/toolbar.component';
     MatToolbarModule,
     MatButtonModule,
     MatIconModule,
-    MatTooltipModule
+    MatTooltipModule,
+    MatSnackBarModule,
   ],
   providers: [],
   bootstrap: [AppComponent]
