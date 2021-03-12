@@ -9,11 +9,13 @@ import { MatToolbarModule } from '@angular/material/toolbar'
 import { MatButtonModule } from '@angular/material/button'
 import { MatIconModule } from '@angular/material/icon'
 import { CommonModule } from '@angular/common';
+import { CanvasToolbarComponent } from './components/canvas-toolbar/canvas-toolbar.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    CanvasComponent
+    CanvasComponent,
+    CanvasToolbarComponent
   ],
   imports: [
     CommonModule,

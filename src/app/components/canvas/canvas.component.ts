@@ -1,11 +1,8 @@
-import { AfterViewInit, Component, ElementRef, OnInit, Renderer2, ViewChild } from '@angular/core';
-import { fromEvent } from 'rxjs';
-import { switchMap, takeUntil, tap } from 'rxjs/operators';
-
-export interface Point {
-  x: number;
-  y: number;
-}
+import { AfterViewInit, Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
+import { BehaviorSubject, fromEvent } from 'rxjs';
+import { filter, switchMap, takeUntil, tap } from 'rxjs/operators';
+import { DrawingMode } from 'src/app/model/canvas-mode';
+import { Point } from 'src/app/model/point';
 
 @Component({
   selector: 'app-canvas',
@@ -18,6 +15,8 @@ export class CanvasComponent implements OnInit, AfterViewInit {
   private _context?: CanvasRenderingContext2D | null;
   private _prevPoint?: Point;
   private _moving = false;
+  private _drawingMode$ = new BehaviorSubject(DrawingMode.DRAWING);
+
   @ViewChild('canvas')
   private _canvas?: ElementRef<HTMLCanvasElement>;
 
@@ -32,18 +31,38 @@ export class CanvasComponent implements OnInit, AfterViewInit {
   get height(): number {
     return this._height;
   }
+
+  @Input('drawingMode')
+  set drawingMode(value: DrawingMode) {
+    if (value !== this._drawingMode$.value) {
+      this._drawingMode$.next(value);
+    }
+  }
+  get drawingMode(): DrawingMode {
+    return this._drawingMode$.value;
+  }
   //#endregion
 
-  constructor(private _renderer: Renderer2) { }
+  constructor() { }
 
-  ngOnInit(): void {
-  }
+  ngOnInit(): void { }
 
   ngAfterViewInit(): void {
-    if (!!this._canvas) {
-      this._context = this._canvas.nativeElement.getContext('2d');
-      this.initializeDrawingListener();
-    }
+    this.observeDrawingModeChange();
+  }
+
+  private observeDrawingModeChange(): void {
+    this._drawingMode$
+      .pipe(
+        filter(() => !!this._canvas),
+        tap(mode => {
+          if (mode === DrawingMode.DRAWING) {
+            this._context = this._canvas!.nativeElement.getContext('2d');
+          } else if (mode === DrawingMode.STRAIGHT_LINE) {
+            // Handle drawing straight line
+          }
+        })
+      ).subscribe();
   }
 
   // Mouse listeners
@@ -61,6 +80,7 @@ export class CanvasComponent implements OnInit, AfterViewInit {
               )))
         ),
         tap(e => this.onDrawLine(e)),
+        takeUntil(this._drawingMode$)
       )
       .subscribe();
   }
