@@ -8,14 +8,17 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatToolbarModule } from '@angular/material/toolbar'
 import { MatButtonModule } from '@angular/material/button'
 import { MatIconModule } from '@angular/material/icon'
+import { MatTooltipModule } from '@angular/material/tooltip'
 import { CommonModule } from '@angular/common';
 import { CanvasToolbarComponent } from './components/canvas-toolbar/canvas-toolbar.component';
+import { ToolbarComponent } from './components/toolbar/toolbar.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     CanvasComponent,
-    CanvasToolbarComponent
+    CanvasToolbarComponent,
+    ToolbarComponent
   ],
   imports: [
     CommonModule,
@@ -24,6 +27,7 @@ import { CanvasToolbarComponent } from './components/canvas-toolbar/canvas-toolb
     MatToolbarModule,
     MatButtonModule,
     MatIconModule,
+    MatTooltipModule
   ],
   providers: [],
   bootstrap: [AppComponent]
