@@ -1,1 +1,25 @@
-<p>help works!</p>
+<div mat-dialog-title class="dialog-header">
+  <h1>
+    <mat-icon>help</mat-icon>
+    <span>Help</span>
+  </h1>
+</div>
+
+<mat-dialog-content>
+  <ul>
+    <li *ngFor="let control of controls">
+      <mat-icon [color]="control.iconColor">{{ control.icon }}</mat-icon>
+
+      <section>
+        <h4>{{ control.label }}</h4>
+        <p [innerHTML]="sanitizeContent(control.descriptionGeneral)"></p>
+        <p *ngFor="let description of control.descriptionsUsage" [innerHTML]="sanitizeContent(description)"></p>
+      </section>
+    </li>
+  </ul>
+
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Close</button>
+</mat-dialog-actions>

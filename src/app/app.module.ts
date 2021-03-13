@@ -12,6 +12,7 @@ import { MatTooltipModule } from '@angular/material/tooltip'
 import { MatSnackBarModule } from '@angular/material/snack-bar'
 import { MatMenuModule } from '@angular/material/menu'
 import { MatSelectModule } from '@angular/material/select'
+import { MatDialogModule } from '@angular/material/dialog'
 import { CommonModule } from '@angular/common';
 import { CanvasToolbarComponent } from './components/canvas-toolbar/canvas-toolbar.component';
 import { ToolbarComponent } from './components/toolbar/toolbar.component';
@@ -39,8 +40,12 @@ import { HelpComponent } from './components/help/help.component';
     MatSnackBarModule,
     MatMenuModule,
     MatSelectModule,
+    MatDialogModule,
 
     ColorPickerModule,
+  ],
+  entryComponents: [
+    HelpComponent,
   ],
   providers: [],
   bootstrap: [AppComponent]

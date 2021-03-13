@@ -1,6 +1,8 @@
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { DrawingMode } from 'src/app/model/canvas-mode';
 import { CanvasStateService } from 'src/app/services/canvas-state.service';
+import { HelpComponent } from '../help/help.component';
 
 @Component({
   selector: 'app-canvas-toolbar',
@@ -10,7 +12,7 @@ import { CanvasStateService } from 'src/app/services/canvas-state.service';
   encapsulation: ViewEncapsulation.None,
 })
 export class CanvasToolbarComponent implements OnInit {
-  constructor(private _canvasStateService: CanvasStateService) { }
+  constructor(private _canvasStateService: CanvasStateService, private _dialogService: MatDialog) { }
 
   //#region Getters and setters
   get isDrawingMode(): boolean {
@@ -53,6 +55,6 @@ export class CanvasToolbarComponent implements OnInit {
   }
 
   public openHelpWindow(): void {
-    console.log('open help window');
+    this._dialogService.open(HelpComponent);
   }
 }

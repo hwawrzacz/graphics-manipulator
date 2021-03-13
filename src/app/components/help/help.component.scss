@@ -1,0 +1,35 @@
+@use '../../../variables' as *;
+
+.dialog-header {
+  h1 {
+    display: flex;
+    align-items: center;
+    
+    mat-icon {
+        margin-right: $spacing-regular;
+    }
+  }
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+
+  li {
+    display: flex;
+    flex-wrap: nowrap;
+
+    &:not(:first-child){
+      margin-top: $spacing-medium;
+    }
+    
+    mat-icon {
+      margin-right: $spacing-regular;
+    }
+      
+    h4 {
+      margin-bottom: $spacing-regular;
+      font-weight: 500;
+    }
+  }
+}
