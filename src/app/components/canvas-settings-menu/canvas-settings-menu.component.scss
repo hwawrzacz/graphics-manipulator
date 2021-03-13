@@ -1,0 +1,13 @@
+@use '../../../variables' as *;
+
+.canvas-settigns-menu-wrapper {
+  padding: $spacing-small $spacing-medium;
+  h1 {
+    display: flex;
+    align-items: center;
+
+    mat-icon {
+      margin-right: $spacing-medium;
+    }
+  }
+}

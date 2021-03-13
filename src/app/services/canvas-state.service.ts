@@ -6,7 +6,12 @@ import { DrawingMode } from '../model/canvas-mode';
   providedIn: 'root'
 })
 export class CanvasStateService {
+  // Properties
   public drawingMode$ = new BehaviorSubject<DrawingMode>(DrawingMode.DRAWING);
+  public strokeColor$ = new BehaviorSubject('#373737');
+  public strokeWidth$ = new BehaviorSubject(2);
+
+  // Actions
   public clear$ = new Subject();
 
   constructor() { }

@@ -1,1 +1,10 @@
-<p>canvas-settings-menu works!</p>
+<div class="canvas-settigns-menu-wrapper">
+  <h1>
+    <mat-icon> tune </mat-icon> <span>Ustawienia</span>
+  </h1>
+
+  <section>
+    <h4>Color</h4>
+    <input [value]="strokeColor" [style.background]="strokeColor" (colorPickerChange)="changeStrokeColor($event)" />
+  </section>
+</div>
