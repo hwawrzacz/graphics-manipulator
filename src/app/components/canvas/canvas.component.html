@@ -1,1 +1,4 @@
-<canvas id="canvas" #canvas [width]="width" [height]="height"></canvas>
+<div class="canvas-wrapper" [style.width.px]="width" [style.height.px]="height">
+  <canvas id="canvas" class="canvas-absolute" #canvas [width]="width" [height]="height"></canvas>
+  <canvas id="canvas-preview" class="canvas-absolute" #canvasPreview [width]="width" [height]="height"></canvas>
+</div>

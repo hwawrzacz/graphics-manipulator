@@ -1,4 +1,20 @@
+.canvas-wrapper {
+  position: relative;
+}
+
+.canvas-absolute {
+  position: absolute;
+  top: 0;
+  left: 0;
+  // Width and height is set dynamically in template
+}
+
 #canvas {
   border: 1px solid black;
+  cursor: crosshair;
+}
+
+#canvas-preview {
+  pointer-events: none;
   cursor: crosshair;
 }

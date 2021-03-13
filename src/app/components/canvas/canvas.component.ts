@@ -12,18 +12,23 @@ import { CanvasStateService } from 'src/app/services/canvas-state.service';
   styleUrls: ['./canvas.component.scss']
 })
 export class CanvasComponent implements OnInit, AfterViewInit {
-  private _width: number = 500;
-  private _height: number = 300;
   private _context?: CanvasRenderingContext2D | null;
+  private _contextPreview?: CanvasRenderingContext2D | null;
   private _prevPoint?: Point;
-  private _moving = false;
+  private _drawing = false;
   private _drawingModeChange$ = new Subject();
 
   @ViewChild('canvas')
   private _canvas?: ElementRef<HTMLCanvasElement>;
 
+  @ViewChild('canvasPreview')
+  private _canvasPreview?: ElementRef<HTMLCanvasElement>;
+
   // Config
-  private _brushSize = 2;
+  private _strokeSize = 2;
+  private _width: number = 500;
+  private _height: number = 300;
+  private _strokeColor = "#cacaca"
 
   //#region Getters and setters
   get width(): number {
@@ -44,16 +49,30 @@ export class CanvasComponent implements OnInit, AfterViewInit {
   ngOnInit(): void { }
 
   ngAfterViewInit(): void {
+    this.setupLineConfig();
     this.observeDrawingModeChange();
     this.observeCanvasClear();
+  }
+
+  private setupLineConfig(): void {
+    if (this._context && !!this._contextPreview) {
+      this._context!.strokeStyle = this._strokeColor;
+      this._context!.lineWidth = this._strokeSize;
+      this._contextPreview!.strokeStyle = this._strokeColor;
+      this._contextPreview!.lineWidth = this._strokeSize;
+    } else {
+      this.openSnackBar(`Canvas ccannot be initalized`);
+    }
   }
 
   private observeDrawingModeChange(): void {
     this._canvasStateService.drawingMode$
       .pipe(
-        filter(() => !!this._canvas),
+        filter(() => !!this._canvas && !!this._canvasPreview),
         tap(mode => {
           this._drawingModeChange$.next();
+          this._context = this._canvas!.nativeElement.getContext('2d');
+          this._contextPreview = this._canvasPreview!.nativeElement.getContext('2d');
           this.switchMode(mode);
         })
       ).subscribe();
@@ -62,8 +81,11 @@ export class CanvasComponent implements OnInit, AfterViewInit {
   private switchMode(mode: DrawingMode): void {
     switch (mode) {
       case DrawingMode.DRAWING:
-        this._context = this._canvas!.nativeElement.getContext('2d');
         this.initializeDrawingListener();
+        break;
+
+      case DrawingMode.STRAIGHT_LINE:
+        this.initializeStraightLineListener();
         break;
 
       default:
@@ -76,24 +98,23 @@ export class CanvasComponent implements OnInit, AfterViewInit {
       .pipe(
         tap(() => {
           this.clearCanvas();
+          this.clearCanvasPreview();
           this.clearPreviousPoint()
         })
       ).subscribe();
   }
 
-  // Mouse listeners
+  //#region Mouse listeners
   private initializeDrawingListener() {
-    this.openSnackBar('Drawing initialized');
-
     fromEvent<MouseEvent>(this._canvas?.nativeElement!, 'mousedown')
       .pipe(
         tap(e => this.onDrawPoint(e)),
         switchMap(() => fromEvent<MouseEvent>(this._canvas?.nativeElement!, 'mousemove')
           .pipe(
-            tap(() => this._moving = true),
+            tap(() => this._drawing = true),
             takeUntil(fromEvent<MouseEvent>(document, 'mouseup')
               .pipe(
-                tap(() => this._moving = false),
+                tap(() => this._drawing = false),
                 tap(e => this.onMouseUp(e)),
               )))
         ),
@@ -103,13 +124,40 @@ export class CanvasComponent implements OnInit, AfterViewInit {
       .subscribe();
   }
 
+  private initializeStraightLineListener(): void {
+    fromEvent<MouseEvent>(this._canvas?.nativeElement!, 'mousedown')
+      .pipe(
+        tap(e => this.assingPreviousPointFromEvent(e)),
+        switchMap(() => fromEvent<MouseEvent>(this._canvas?.nativeElement!, 'mousemove')
+          .pipe(
+            tap(() => this.clearCanvasPreview()),
+            takeUntil(fromEvent<MouseEvent>(this._canvas?.nativeElement!, 'mouseup')
+              .pipe(
+                tap(e => this.onStraightLineMouseUp(e)),
+              )))
+        ),
+        tap(e => this.onDrawLinePreview(e)),
+        takeUntil(this._drawingModeChange$)
+      )
+      .subscribe();
+  }
+  //#endregion
+
   private onMouseUp(event: MouseEvent): void {
     const newPoint = { x: event.offsetX, y: event.offsetY };
 
     if (event.shiftKey) {
       this.drawLine(this._prevPoint!, newPoint);
-    } else if (this._moving) {
-      this.clearPreviousPoint();
+    } else if (this._drawing) {
+      this.assingPreviousPointFromPoint(newPoint);
+    }
+  }
+
+  private onStraightLineMouseUp(event: MouseEvent): void {
+    const newPoint = { x: event.offsetX, y: event.offsetY };
+    this.drawLine(this._prevPoint!, newPoint);
+    if (!this._drawing) {
+      this.assingPreviousPointFromPoint(newPoint);
     }
   }
 
@@ -126,13 +174,19 @@ export class CanvasComponent implements OnInit, AfterViewInit {
   }
 
   private drawPoint(p1: Point): void {
-    this._context?.fillRect(p1.x, p1.y, this._brushSize, this._brushSize);
+    this._context?.fillRect(p1.x, p1.y, this._strokeSize, this._strokeSize);
   }
 
   private drawLine(p1: Point, p2: Point): void {
     this._context!.moveTo(p1.x, p1.y);
     this._context!.lineTo(p2.x, p2.y);
     this._context!.stroke();
+  }
+
+  private drawLinePreview(p1: Point, p2: Point): void {
+    this._contextPreview!.moveTo(p1.x, p1.y);
+    this._contextPreview!.lineTo(p2.x, p2.y);
+    this._contextPreview!.stroke();
   }
 
   private onDrawLine(event: MouseEvent): void {
@@ -150,9 +204,19 @@ export class CanvasComponent implements OnInit, AfterViewInit {
     this.assingPreviousPointFromPoint(newPoint);
   }
 
+  private onDrawLinePreview(event: MouseEvent): void {
+    const newPoint = { x: event.offsetX, y: event.offsetY };
+    this.drawLinePreview(this._prevPoint!, newPoint);
+  }
+
   private clearCanvas(): void {
     this._context?.clearRect(0, 0, this._width, this._height);
     this._context?.beginPath();
+  }
+
+  private clearCanvasPreview(): void {
+    this._contextPreview?.clearRect(0, 0, this._width, this._height);
+    this._contextPreview?.beginPath();
   }
 
   private clearPreviousPoint() {
