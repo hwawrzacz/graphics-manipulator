@@ -15,6 +15,7 @@ import { CommonModule } from '@angular/common';
 import { CanvasToolbarComponent } from './components/canvas-toolbar/canvas-toolbar.component';
 import { ToolbarComponent } from './components/toolbar/toolbar.component';
 import { CanvasSettingsMenuComponent } from './components/canvas-settings-menu/canvas-settings-menu.component';
+import { ColorPickerModule } from 'ngx-color-picker';
 
 @NgModule({
   declarations: [
@@ -34,6 +35,8 @@ import { CanvasSettingsMenuComponent } from './components/canvas-settings-menu/c
     MatTooltipModule,
     MatSnackBarModule,
     MatMenuModule,
+
+    ColorPickerModule,
   ],
   providers: [],
   bootstrap: [AppComponent]
