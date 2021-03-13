@@ -17,7 +17,7 @@ import { CanvasToolbarComponent } from './components/canvas-toolbar/canvas-toolb
 import { ToolbarComponent } from './components/toolbar/toolbar.component';
 import { CanvasSettingsMenuComponent } from './components/canvas-settings-menu/canvas-settings-menu.component';
 import { ColorPickerModule } from 'ngx-color-picker';
-import { HelpMessageComponent } from './components/help-message/help-message.component';
+import { HelpComponent } from './components/help/help.component';
 
 @NgModule({
   declarations: [
@@ -26,7 +26,7 @@ import { HelpMessageComponent } from './components/help-message/help-message.com
     CanvasToolbarComponent,
     ToolbarComponent,
     CanvasSettingsMenuComponent,
-    HelpMessageComponent
+    HelpComponent
   ],
   imports: [
     CommonModule,
