@@ -10,16 +10,19 @@ import { MatButtonModule } from '@angular/material/button'
 import { MatIconModule } from '@angular/material/icon'
 import { MatTooltipModule } from '@angular/material/tooltip'
 import { MatSnackBarModule } from '@angular/material/snack-bar'
+import { MatMenuModule } from '@angular/material/menu'
 import { CommonModule } from '@angular/common';
 import { CanvasToolbarComponent } from './components/canvas-toolbar/canvas-toolbar.component';
 import { ToolbarComponent } from './components/toolbar/toolbar.component';
+import { CanvasSettingsMenuComponent } from './components/canvas-settings-menu/canvas-settings-menu.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     CanvasComponent,
     CanvasToolbarComponent,
-    ToolbarComponent
+    ToolbarComponent,
+    CanvasSettingsMenuComponent
   ],
   imports: [
     CommonModule,
@@ -30,6 +33,7 @@ import { ToolbarComponent } from './components/toolbar/toolbar.component';
     MatIconModule,
     MatTooltipModule,
     MatSnackBarModule,
+    MatMenuModule,
   ],
   providers: [],
   bootstrap: [AppComponent]
