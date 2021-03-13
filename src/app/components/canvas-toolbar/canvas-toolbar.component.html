@@ -1,6 +1,14 @@
 <div class="canvas-toolbar-wrapper">
   <div class="canvas-controls">
     <div class="drawing-modes">
+      <button mat-icon-button [matMenuTriggerFor]="canvasSettings" matTooltip="Settings">
+        <mat-icon> tune </mat-icon>
+      </button>
+
+      <mat-menu #canvasSettings="matMenu">
+        <app-canvas-settings-menu></app-canvas-settings-menu>
+      </mat-menu>
+
       <button mat-button [class.active]="isDrawingMode" (click)="enableDrawingMode()" matTooltip="Drawing"
         matTooltipClass="tooltip-visibility">
         <mat-icon> gesture </mat-icon> <span class="button-label">Drawing</span>
@@ -12,12 +20,12 @@
       </button>
 
       <button mat-button [class.active]="isSquareMode" (click)="enableSquareMode()" matTooltip="Square"
-        matTooltipClass="tooltip-visibility">
+        matTooltipClass="tooltip-visibility" disabled>
         <mat-icon> crop_square </mat-icon> <span class="button-label">Square</span>
       </button>
 
       <button mat-button [class.active]="isCircleMode" (click)="enableCircleMode()" matTooltip="Circle"
-        matTooltipClass="tooltip-visibility">
+        matTooltipClass="tooltip-visibility" disabled>
         <mat-icon> panorama_fish_eye </mat-icon> <span class="button-label">Circle</span>
       </button>
 
