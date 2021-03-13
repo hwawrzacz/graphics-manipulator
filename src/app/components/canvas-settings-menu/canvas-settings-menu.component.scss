@@ -11,3 +11,27 @@
     }
   }
 }
+
+section {
+  margin-bottom: $spacing-regular;
+  display: flex;
+  flex-direction: column;
+}
+
+mat-option {
+  width: 100%;
+  border: 0px solid transparent;
+  outline: none;
+  
+  ::ng-deep.mat-option-text {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+  
+    hr {
+      flex-grow: .9;
+      overflow: none;
+      border: none;
+    }
+  }
+}

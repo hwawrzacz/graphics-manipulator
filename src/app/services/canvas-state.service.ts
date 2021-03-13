@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { DrawingMode } from '../model/canvas-mode';
 
+export const STROKE_SIZES = [1, 2, 4, 6, 8, 10];
+
 @Injectable({
   providedIn: 'root'
 })

@@ -6,9 +6,7 @@
       </button>
 
       <mat-menu #canvasSettings="matMenu">
-        <ng-template matMenuContent>
-          <app-canvas-settings-menu></app-canvas-settings-menu>
-        </ng-template>
+        <app-canvas-settings-menu (click)="$event.stopPropagation()"></app-canvas-settings-menu>
       </mat-menu>
 
       <button mat-button [class.active]="isDrawingMode" (click)="enableDrawingMode()" matTooltip="Drawing"

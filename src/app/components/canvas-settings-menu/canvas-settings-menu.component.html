@@ -4,7 +4,17 @@
   </h1>
 
   <section>
-    <h4>Color</h4>
-    <input [value]="strokeColor" [style.background]="strokeColor" (colorPickerChange)="changeStrokeColor($event)" />
+    <label>Stroke color</label>
+    <input [style.background]="strokeColor" [(colorPicker)]="strokeColor" />
+  </section>
+
+  <section>
+    <label>Stroke width</label>
+    <mat-select [value]="strokeWidth">
+      <mat-option *ngFor="let size of allStrokeSizes" [value]="size">
+        <span>{{ size }}px</span>
+        <hr [style.height.px]="size" [style.background]="strokeColor">
+      </mat-option>
+    </mat-select>
   </section>
 </div>

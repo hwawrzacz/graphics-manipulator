@@ -11,6 +11,7 @@ import { MatIconModule } from '@angular/material/icon'
 import { MatTooltipModule } from '@angular/material/tooltip'
 import { MatSnackBarModule } from '@angular/material/snack-bar'
 import { MatMenuModule } from '@angular/material/menu'
+import { MatSelectModule } from '@angular/material/select'
 import { CommonModule } from '@angular/common';
 import { CanvasToolbarComponent } from './components/canvas-toolbar/canvas-toolbar.component';
 import { ToolbarComponent } from './components/toolbar/toolbar.component';
@@ -35,6 +36,7 @@ import { ColorPickerModule } from 'ngx-color-picker';
     MatTooltipModule,
     MatSnackBarModule,
     MatMenuModule,
+    MatSelectModule,
 
     ColorPickerModule,
   ],
