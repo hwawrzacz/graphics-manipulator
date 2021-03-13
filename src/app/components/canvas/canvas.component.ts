@@ -28,7 +28,7 @@ export class CanvasComponent implements OnInit, AfterViewInit {
   private _strokeSize = 2;
   private _width: number = 500;
   private _height: number = 300;
-  private _strokeColor = "#cacaca"
+  private _strokeColor = "#373737";
 
   //#region Getters and setters
   get width(): number {
@@ -49,30 +49,33 @@ export class CanvasComponent implements OnInit, AfterViewInit {
   ngOnInit(): void { }
 
   ngAfterViewInit(): void {
-    this.setupLineConfig();
-    this.observeDrawingModeChange();
-    this.observeCanvasClear();
+    try {
+      this.initializeContexts();
+      this.setupLineConfig();
+      this.observeDrawingModeChange();
+      this.observeCanvasClear();
+    } catch (exc) {
+      this.openSnackBar(`Canvas were not initalized properly. Please try to reload the page`);
+    }
+  }
+
+  private initializeContexts(): void {
+    this._context = this._canvas!.nativeElement.getContext('2d');
+    this._contextPreview = this._canvasPreview!.nativeElement.getContext('2d');
   }
 
   private setupLineConfig(): void {
-    if (this._context && !!this._contextPreview) {
-      this._context!.strokeStyle = this._strokeColor;
-      this._context!.lineWidth = this._strokeSize;
-      this._contextPreview!.strokeStyle = this._strokeColor;
-      this._contextPreview!.lineWidth = this._strokeSize;
-    } else {
-      this.openSnackBar(`Canvas ccannot be initalized`);
-    }
+    this._context!.strokeStyle = this._strokeColor;
+    this._context!.lineWidth = this._strokeSize;
+    this._contextPreview!.strokeStyle = this._strokeColor;
+    this._contextPreview!.lineWidth = this._strokeSize;
   }
 
   private observeDrawingModeChange(): void {
     this._canvasStateService.drawingMode$
       .pipe(
-        filter(() => !!this._canvas && !!this._canvasPreview),
         tap(mode => {
           this._drawingModeChange$.next();
-          this._context = this._canvas!.nativeElement.getContext('2d');
-          this._contextPreview = this._canvasPreview!.nativeElement.getContext('2d');
           this.switchMode(mode);
         })
       ).subscribe();
@@ -164,12 +167,10 @@ export class CanvasComponent implements OnInit, AfterViewInit {
   private onDrawPoint(event: MouseEvent): void {
     const newPoint = { x: event.offsetX, y: event.offsetY };
 
-    if (event.shiftKey && this._prevPoint) {
-      // console.log('shift');
-      this.drawLine(this._prevPoint, newPoint);
-    } else {
-      this.drawPoint(newPoint);
-    }
+    event.shiftKey && this._prevPoint
+      ? this.drawLine(this._prevPoint, newPoint)
+      : this.drawPoint(newPoint)
+
     this._prevPoint = { x: newPoint.x, y: newPoint.y };
   }
 
@@ -220,17 +221,14 @@ export class CanvasComponent implements OnInit, AfterViewInit {
   }
 
   private clearPreviousPoint() {
-    // console.log('point cleared');
     this._prevPoint = undefined;
   }
 
   private assingPreviousPointFromEvent(event: MouseEvent): void {
-    // console.log('point reassigned form event');
     this._prevPoint = { x: event.offsetX, y: event.offsetY };
   }
 
   private assingPreviousPointFromPoint(point: Point): void {
-    // console.log('point reassigned form point');
     this._prevPoint = { x: point.x, y: point.y };
   }
 
