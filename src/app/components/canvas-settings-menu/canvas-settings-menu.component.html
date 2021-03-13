@@ -5,12 +5,13 @@
 
   <section>
     <label>Stroke color</label>
-    <input [style.background]="strokeColor" [(colorPicker)]="strokeColor" />
+    <input [style.background]="strokeColor" [(colorPicker)]="strokeColor"
+      (colorPickerSelect)="changeStrokeColor($event)" [cpOKButton]="true" [cpOKButtonClass]="'mat-raised-button'" />
   </section>
 
   <section>
     <label>Stroke width</label>
-    <mat-select [value]="strokeWidth">
+    <mat-select [value]="strokeWidth" (valueChange)="changeStrokeWidth($event)">
       <mat-option *ngFor="let size of allStrokeSizes" [value]="size">
         <span>{{ size }}px</span>
         <hr [style.height.px]="size" [style.background]="strokeColor">

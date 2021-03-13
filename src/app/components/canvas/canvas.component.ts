@@ -11,7 +11,7 @@ import { CanvasStateService } from 'src/app/services/canvas-state.service';
   templateUrl: './canvas.component.html',
   styleUrls: ['./canvas.component.scss']
 })
-export class CanvasComponent implements OnInit, AfterViewInit {
+export class CanvasComponent implements AfterViewInit {
   private _context?: CanvasRenderingContext2D | null;
   private _contextPreview?: CanvasRenderingContext2D | null;
   private _prevPoint?: Point;
@@ -46,14 +46,13 @@ export class CanvasComponent implements OnInit, AfterViewInit {
 
   constructor(private _canvasStateService: CanvasStateService, private _snackBar: MatSnackBar) { }
 
-  ngOnInit(): void { }
-
   ngAfterViewInit(): void {
     try {
       this.initializeContexts();
       this.setupLineConfig();
       this.observeDrawingModeChange();
       this.observeCanvasClear();
+      this.observeSettingsChanges();
     } catch (exc) {
       this.openSnackBar(`Canvas were not initalized properly. Please try to reload the page`);
     }
@@ -65,10 +64,18 @@ export class CanvasComponent implements OnInit, AfterViewInit {
   }
 
   private setupLineConfig(): void {
-    this._context!.strokeStyle = this._strokeColor;
-    this._context!.lineWidth = this._strokeSize;
-    this._contextPreview!.strokeStyle = this._strokeColor;
-    this._contextPreview!.lineWidth = this._strokeSize;
+    this.setStrokeColor(this._strokeColor);
+    this.setStrokeWidth(this._strokeSize);
+  }
+
+  private setStrokeColor(strokeColor: string): void {
+    this._context!.strokeStyle = strokeColor;
+    this._contextPreview!.strokeStyle = strokeColor;
+  }
+
+  private setStrokeWidth(strokeWidth: number): void {
+    this._context!.lineWidth = strokeWidth;
+    this._contextPreview!.lineWidth = strokeWidth;
   }
 
   private observeDrawingModeChange(): void {
@@ -79,6 +86,11 @@ export class CanvasComponent implements OnInit, AfterViewInit {
           this.switchMode(mode);
         })
       ).subscribe();
+  }
+
+  private observeSettingsChanges(): void {
+    this._canvasStateService.strokeColor$.pipe(tap(color => this.setStrokeColor(color))).subscribe();
+    this._canvasStateService.strokeWidth$.pipe(tap(width => this.setStrokeWidth(width))).subscribe();
   }
 
   private switchMode(mode: DrawingMode): void {

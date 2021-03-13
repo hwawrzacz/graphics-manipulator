@@ -6,7 +6,7 @@ import { CanvasStateService, STROKE_SIZES } from 'src/app/services/canvas-state.
   templateUrl: './canvas-settings-menu.component.html',
   styleUrls: ['./canvas-settings-menu.component.scss']
 })
-export class CanvasSettingsMenuComponent implements OnInit, OnDestroy {
+export class CanvasSettingsMenuComponent {
   strokeColor: string;
   strokeWidth: number;
 
@@ -15,24 +15,15 @@ export class CanvasSettingsMenuComponent implements OnInit, OnDestroy {
   }
 
   constructor(private _canvasStateService: CanvasStateService) {
-    this.strokeColor = _canvasStateService.strokeColor$.value;
-    this.strokeWidth = _canvasStateService.strokeWidth$.value;
+    this.strokeColor = this._canvasStateService.strokeColor$.value;
+    this.strokeWidth = this._canvasStateService.strokeWidth$.value;
   }
 
-  ngOnInit(): void {
-  }
-
-  ngOnDestroy(): void {
-    console.log('saving');
-    this.changeStrokeColor(this.strokeColor);
-    this.changeStrokeWidth(this.strokeWidth);
-  }
-
-  private changeStrokeColor(color: string): void {
+  public changeStrokeColor(color: string): void {
     this._canvasStateService.strokeColor$.next(color);
   }
 
-  private changeStrokeWidth(width: number): void {
+  public changeStrokeWidth(width: number): void {
     this._canvasStateService.strokeWidth$.next(width);
   }
 
