@@ -69,6 +69,7 @@ export class CanvasComponent implements AfterViewInit {
   }
 
   private setStrokeColor(strokeColor: string): void {
+    this._context!.fillStyle = strokeColor;
     this._context!.strokeStyle = strokeColor;
     this._contextPreview!.strokeStyle = strokeColor;
   }
