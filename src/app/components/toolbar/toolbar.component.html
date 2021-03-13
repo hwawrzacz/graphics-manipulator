@@ -6,8 +6,8 @@
 
     <span>{{ title }}</span>
 
-    <button mat-icon-button>
-      <mat-icon (click)="toggleToolbar()" [class.upside-down]="expanded"> expand_more </mat-icon>
+    <button mat-icon-button (click)="toggleToolbar()">
+      <mat-icon [class.upside-down]="expanded"> expand_more </mat-icon>
     </button>
   </mat-toolbar-row>
 
