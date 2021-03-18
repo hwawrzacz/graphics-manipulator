@@ -1,10 +1,11 @@
-import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { fromEvent, Subject } from 'rxjs';
-import { filter, switchMap, takeUntil, tap } from 'rxjs/operators';
+import { switchMap, takeUntil, tap } from 'rxjs/operators';
 import { DrawingMode } from 'src/app/model/canvas-mode';
 import { Point } from 'src/app/model/point';
 import { CanvasStateService } from 'src/app/services/canvas-state.service';
+import { DrawingManager } from './drawing-manager';
 
 @Component({
   selector: 'app-canvas',
@@ -15,8 +16,8 @@ export class CanvasComponent implements AfterViewInit {
   private _context?: CanvasRenderingContext2D | null;
   private _contextPreview?: CanvasRenderingContext2D | null;
   private _prevPoint?: Point;
-  private _drawing = false;
   private _drawingModeChange$ = new Subject();
+  private _drawingManager?: DrawingManager;
 
   @ViewChild('canvas')
   private _canvas?: ElementRef<HTMLCanvasElement>;
@@ -66,17 +67,7 @@ export class CanvasComponent implements AfterViewInit {
   private initializeContexts(): void {
     this._context = this._canvas!.nativeElement.getContext('2d');
     this._contextPreview = this._canvasPreview!.nativeElement.getContext('2d');
-  }
-
-  private setStrokeColor(strokeColor: string): void {
-    this._context!.fillStyle = strokeColor;
-    this._context!.strokeStyle = strokeColor;
-    this._contextPreview!.strokeStyle = strokeColor;
-  }
-
-  private setStrokeWidth(strokeSize: number): void {
-    this._context!.lineWidth = strokeSize;
-    this._contextPreview!.lineWidth = strokeSize;
+    this._drawingManager = new DrawingManager(this._context, this._contextPreview, this.strokeColor, this.strokeSize);
   }
 
   private observeDrawingModeChange(): void {
@@ -90,8 +81,8 @@ export class CanvasComponent implements AfterViewInit {
   }
 
   private observeSettingsChanges(): void {
-    this._canvasStateService.strokeColor$.pipe(tap(color => this.setStrokeColor(color))).subscribe();
-    this._canvasStateService.strokeWidth$.pipe(tap(width => this.setStrokeWidth(width))).subscribe();
+    this._canvasStateService.strokeColor$.pipe(tap(color => this._drawingManager!.strokeColor = color)).subscribe();
+    this._canvasStateService.strokeWidth$.pipe(tap(width => this._drawingManager!.strokeWidth = width)).subscribe();
   }
 
   private switchMode(mode: DrawingMode): void {
@@ -113,8 +104,8 @@ export class CanvasComponent implements AfterViewInit {
     this._canvasStateService.clear$
       .pipe(
         tap(() => {
-          this.clearCanvas();
-          this.clearCanvasPreview();
+          this._drawingManager!.clearCanvas(this._width, this._height);
+          this._drawingManager!.clearCanvasPreview(this._width, this._height);
           this.clearPreviousPoint()
         })
       ).subscribe();
@@ -127,7 +118,6 @@ export class CanvasComponent implements AfterViewInit {
         tap(e => this.onDrawPoint(e)),
         switchMap(() => fromEvent<MouseEvent>(this._canvas?.nativeElement!, 'mousemove')
           .pipe(
-            tap(() => this._drawing = true),
             takeUntil(fromEvent<MouseEvent>(document, 'mouseup')
               .pipe(
                 tap(e => this.onMouseUp(e)),
@@ -158,11 +148,10 @@ export class CanvasComponent implements AfterViewInit {
   //#endregion
 
   private onMouseUp(event: MouseEvent): void {
-    this._drawing = false;
     const newPoint = { x: event.offsetX, y: event.offsetY };
 
     if (event.shiftKey) {
-      this.drawLine(this._prevPoint!, newPoint);
+      this._drawingManager!.drawLine(this._prevPoint!, newPoint);
     }
 
     this._context!.closePath();
@@ -170,41 +159,20 @@ export class CanvasComponent implements AfterViewInit {
 
   private onStraightLineMouseUp(event: MouseEvent): void {
     const newPoint = { x: event.offsetX, y: event.offsetY };
-    this.drawLine(this._prevPoint!, newPoint);
-    if (!this._drawing) {
-      this.assingPreviousPointFromPoint(newPoint);
-    }
+    this._drawingManager!.drawLine(this._prevPoint!, newPoint);
+    this.assingPreviousPointFromPoint(newPoint);
     this._context!.closePath();
-    this.clearCanvasPreview();
+    this._drawingManager!.clearCanvasPreview(this._width, this._height);
   }
 
   private onDrawPoint(event: MouseEvent): void {
     const newPoint = { x: event.offsetX, y: event.offsetY };
 
     event.shiftKey && this._prevPoint
-      ? this.drawLine(this._prevPoint, newPoint)
-      : this.drawPoint(newPoint)
+      ? this._drawingManager!.drawLine(this._prevPoint, newPoint)
+      : this._drawingManager!.drawPoint(newPoint)
 
     this._prevPoint = { x: newPoint.x, y: newPoint.y };
-  }
-
-  private drawPoint(p1: Point): void {
-    const startingX = p1.x - Math.floor(this.strokeSize / 2);
-    const startingY = p1.y - Math.floor(this.strokeSize / 2);
-    this._context?.fillRect(startingX, startingY, this.strokeSize, this.strokeSize);
-  }
-
-  private drawLine(p1: Point, p2: Point): void {
-    this._context!.beginPath();
-    this._context!.moveTo(p1.x, p1.y);
-    this._context!.lineTo(p2.x, p2.y);
-    this._context!.stroke();
-  }
-
-  private drawLinePreview(p1: Point, p2: Point): void {
-    this._contextPreview!.moveTo(p1.x, p1.y);
-    this._contextPreview!.lineTo(p2.x, p2.y);
-    this._contextPreview!.stroke();
   }
 
   private onDrawLine(event: MouseEvent): void {
@@ -216,25 +184,16 @@ export class CanvasComponent implements AfterViewInit {
     if (event.shiftKey) {
       console.log('shift');
     } else {
-      this.drawLine(this._prevPoint!, newPoint);
+      this._drawingManager!.drawLine(this._prevPoint!, newPoint);
     }
 
     this.assingPreviousPointFromPoint(newPoint);
   }
 
   private onDrawLinePreview(event: MouseEvent): void {
-    this.clearCanvasPreview();
+    this._drawingManager!.clearCanvasPreview(this._width, this._height);
     const newPoint = { x: event.offsetX, y: event.offsetY };
-    this.drawLinePreview(this._prevPoint!, newPoint);
-  }
-
-  private clearCanvas(): void {
-    this._context?.clearRect(0, 0, this._width, this._height);
-  }
-
-  private clearCanvasPreview(): void {
-    this._contextPreview?.clearRect(0, 0, this._width, this._height);
-    this._contextPreview?.beginPath();
+    this._drawingManager!.drawLinePreview(this._prevPoint!, newPoint);
   }
 
   private clearPreviousPoint() {
