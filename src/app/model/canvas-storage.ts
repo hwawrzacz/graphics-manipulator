@@ -1,5 +1,8 @@
+import { tap } from 'rxjs/operators';
+import { CanvasStateService } from '../services/canvas-state.service';
 import { CanvasLine } from './canvas-line';
 import { CanvasPoint } from './canvas-point';
+import { CanvasStorageSnapshot } from './canvas-storage-snapshot';
 import { CurvedLine } from './curved-line';
 
 export class CanvasStorage {
@@ -7,7 +10,13 @@ export class CanvasStorage {
   private _curvedLines: CurvedLine[] = [];
   private _points: CanvasPoint[] = [];
 
-  constructor() { }
+  constructor(private _stateService: CanvasStateService) {
+    this.subscribeToStateServiceEvents();
+  }
+
+  private subscribeToStateServiceEvents(): void {
+    this._stateService.printCanvasStorage$.pipe(tap(() => this.print())).subscribe();
+  }
 
   //#region Straight lines
   public addStraightLine(line: CanvasLine): void {
@@ -28,6 +37,18 @@ export class CanvasStorage {
   //#region Points
   public addPoint(point: CanvasPoint): void {
     this._points.push(point);
+  }
+  //#endregion
+
+  //#region Storage management
+  private print(): void {
+    const snapshot = {
+      points: this._points,
+      curvedLines: this._curvedLines,
+      straightLines: this._straightLines,
+    } as CanvasStorageSnapshot;
+
+    console.log(snapshot);
   }
   //#endregion
 

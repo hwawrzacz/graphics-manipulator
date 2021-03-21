@@ -15,6 +15,7 @@ export class CanvasStateService {
 
   // Actions
   public clear$ = new Subject();
+  public printCanvasStorage$ = new Subject();
 
   constructor() { }
 }

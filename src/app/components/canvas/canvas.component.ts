@@ -58,9 +58,9 @@ export class CanvasComponent implements AfterViewInit {
 
   constructor(
     private _canvasStateService: CanvasStateService,
-    private _snackBar: MatSnackBar
+    private _snackBar: MatSnackBar,
   ) {
-    this._canvasStorage = new CanvasStorage();
+    this._canvasStorage = new CanvasStorage(_canvasStateService);
     this._currentCurvedLine = new CurvedLine();
   }
 
