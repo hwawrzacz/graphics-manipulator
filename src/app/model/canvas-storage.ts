@@ -10,13 +10,7 @@ export class CanvasStorage {
   private _curvedLines: CurvedLine[] = [];
   private _points: CanvasPoint[] = [];
 
-  constructor(private _stateService: CanvasStateService) {
-    this.subscribeToStateServiceEvents();
-  }
-
-  private subscribeToStateServiceEvents(): void {
-    this._stateService.printCanvasStorage$.pipe(tap(() => this.print())).subscribe();
-  }
+  constructor() { }
 
   //#region Straight lines
   public addStraightLine(line: CanvasLine): void {
@@ -49,6 +43,16 @@ export class CanvasStorage {
     } as CanvasSnapshot;
 
     console.log(snapshot);
+  }
+
+  public getSnapshot(): CanvasSnapshot {
+    const snapshot = {
+      points: this._points,
+      curvedLines: this._curvedLines,
+      straightLines: this._straightLines,
+    } as CanvasSnapshot;
+
+    return snapshot;
   }
   //#endregion
 

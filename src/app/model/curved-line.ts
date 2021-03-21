@@ -1,19 +1,19 @@
-import { Line } from './line';
+import { CanvasLine } from './canvas-line';
 
 /** Curved line, which contains a set of sublines */
 export class CurvedLine {
   //#region Getters and setters
-  get lines(): Line[] {
+  get lines(): CanvasLine[] {
     return this._lines;
   }
-  set lines(value: Line[]) {
+  set lines(value: CanvasLine[]) {
     this._lines = value;
   }
   //#endregion
 
-  constructor(private _lines: Line[] = []) { }
+  constructor(private _lines: CanvasLine[] = []) { }
 
-  public addSubLine(line: Line): void {
+  public addSubLine(line: CanvasLine): void {
     this._lines.push(line);
   }
 }

@@ -60,7 +60,7 @@ export class CanvasComponent implements AfterViewInit {
     private _canvasStateService: CanvasStateService,
     private _snackBar: MatSnackBar,
   ) {
-    this._canvasStorage = new CanvasStorage(_canvasStateService);
+    this._canvasStorage = new CanvasStorage();
     this._currentCurvedLine = new CurvedLine();
   }
 
@@ -70,6 +70,7 @@ export class CanvasComponent implements AfterViewInit {
       this.observeDrawingModeChange();
       this.observeCanvasClear();
       this.observeSettingsChanges();
+      this.observeActtionEmissions();
     } catch (exc) {
       this.openSnackBar(`Canvas were not initalized properly. Please try to reload the page`);
     }
@@ -120,6 +121,10 @@ export class CanvasComponent implements AfterViewInit {
           this.clearPreviousPoint()
         })
       ).subscribe();
+  }
+
+  private observeActtionEmissions(): void {
+    this._canvasStateService.printCanvasStorage$.pipe(tap(() => this.onRedrawCanvas())).subscribe();
   }
 
   //#region Mouse listeners
@@ -247,6 +252,11 @@ export class CanvasComponent implements AfterViewInit {
     } as CanvasLine;
 
     this._drawingManager!.drawLinePreview(line);
+  }
+
+  private onRedrawCanvas(): void {
+    const snapshot = this._canvasStorage.getSnapshot();
+    this._drawingManager?.redrawFromSnapshot(snapshot);
   }
 
   private clearPreviousPoint() {

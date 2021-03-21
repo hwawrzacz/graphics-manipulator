@@ -58,6 +58,8 @@ export class DrawingManager {
   }
 
   public redrawFromSnapshot(snapshot: CanvasSnapshot): void {
-
+    snapshot.straightLines.forEach(line => this.drawLine(line));
+    snapshot.curvedLines.forEach(line => line.lines.forEach(subline => this.drawLine(subline)));
+    snapshot.points.forEach(point => this.drawPoint(point));
   }
 }
