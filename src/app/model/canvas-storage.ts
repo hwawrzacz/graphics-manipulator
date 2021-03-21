@@ -2,7 +2,7 @@ import { tap } from 'rxjs/operators';
 import { CanvasStateService } from '../services/canvas-state.service';
 import { CanvasLine } from './canvas-line';
 import { CanvasPoint } from './canvas-point';
-import { CanvasStorageSnapshot } from './canvas-storage-snapshot';
+import { CanvasSnapshot } from './canvas-snapshot';
 import { CurvedLine } from './curved-line';
 
 export class CanvasStorage {
@@ -46,7 +46,7 @@ export class CanvasStorage {
       points: this._points,
       curvedLines: this._curvedLines,
       straightLines: this._straightLines,
-    } as CanvasStorageSnapshot;
+    } as CanvasSnapshot;
 
     console.log(snapshot);
   }

@@ -1,5 +1,6 @@
 import { CanvasLine } from 'src/app/model/canvas-line';
 import { CanvasPoint } from 'src/app/model/canvas-point';
+import { CanvasSnapshot } from 'src/app/model/canvas-snapshot';
 
 
 /** Class that handles drawing logic */
@@ -54,5 +55,9 @@ export class DrawingManager {
   public clearCanvasPreview(width: number, height: number): void {
     this._contextPreview?.clearRect(0, 0, width, height);
     this._contextPreview?.beginPath();
+  }
+
+  public redrawFromSnapshot(snapshot: CanvasSnapshot): void {
+
   }
 }
