@@ -200,8 +200,7 @@ export class CanvasComponent implements AfterViewInit {
       width: this.strokeSize
     } as CanvasLine;
 
-    this._drawingManager!.drawLine(line);
-    this._canvasStorage.addStraightLine(line);
+    this._drawingManager!.drawStraightLine(line);
     this.assingPreviousPointFromPoint(newPoint);
     this._drawingManager!.clearCanvasPreview(this._width, this._height);
   }
