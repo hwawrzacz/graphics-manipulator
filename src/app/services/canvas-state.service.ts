@@ -9,7 +9,7 @@ export const STROKE_SIZES = [1, 2, 4, 6, 8, 10];
 })
 export class CanvasStateService {
   // Properties
-  public drawingMode$ = new BehaviorSubject<DrawingMode>(DrawingMode.DRAWING);
+  public drawingMode$ = new BehaviorSubject<DrawingMode>(DrawingMode.STRAIGHT_LINE);
   public strokeColor$ = new BehaviorSubject('#373737');
   public strokeWidth$ = new BehaviorSubject(2);
 
