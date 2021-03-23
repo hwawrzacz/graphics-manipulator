@@ -30,6 +30,10 @@ export class CanvasToolbarComponent implements OnInit {
   get isCircleMode(): boolean {
     return this._canvasStateService.drawingMode$.value === DrawingMode.CIRCLE;
   }
+
+  get isEditMode(): boolean {
+    return this._canvasStateService.drawingMode$.value === DrawingMode.EDIT;
+  }
   //#endregion
 
   ngOnInit(): void { }
@@ -48,6 +52,10 @@ export class CanvasToolbarComponent implements OnInit {
 
   public enableCircleMode(): void {
     this._canvasStateService.drawingMode$.next(DrawingMode.CIRCLE);
+  }
+
+  public enableEditMode(): void {
+    this._canvasStateService.drawingMode$.next(DrawingMode.EDIT);
   }
 
   public clearCanvas(): void {

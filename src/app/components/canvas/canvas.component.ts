@@ -107,6 +107,10 @@ export class CanvasComponent implements AfterViewInit {
         this.initializeStraightLineListener();
         break;
 
+      case DrawingMode.STRAIGHT_LINE:
+        this.initializeEditListener();
+        break;
+
       default:
         this.openSnackBar('Selected mode is not supported yet');
     }
@@ -163,6 +167,9 @@ export class CanvasComponent implements AfterViewInit {
         takeUntil(this._drawingModeChange$)
       )
       .subscribe();
+  }
+
+  private initializeEditListener(): void {
   }
   //#endregion
 

@@ -29,6 +29,11 @@
         <mat-icon> panorama_fish_eye </mat-icon> <span class="button-label">Circle</span>
       </button>
 
+      <button mat-button [class.active]="isEditMode" (click)="enableEditMode()" matTooltip="Edit"
+        matTooltipClass="tooltip-visibility">
+        <mat-icon> edit </mat-icon> <span class="button-label">Edit</span>
+      </button>
+
       <button mat-button [class.active]="isCircleMode" (click)="printStorage()" matTooltip="Print storage"
         matTooltipClass="tooltip-visibility">
         <mat-icon> save </mat-icon> <span class="button-label">Print storage</span>
