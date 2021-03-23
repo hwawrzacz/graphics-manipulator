@@ -93,6 +93,8 @@ export class DrawingManager {
   }
 
   public drawLinePreview(line: CanvasLine): void {
+    this.uglyClearContextPreview();
+
     this.strokeColor = line.color;
     this.strokeWidth = line.width;
     this._contextPreview.beginPath();
@@ -103,6 +105,8 @@ export class DrawingManager {
   }
 
   public drawEditLinePreview(newPoint: Point): void {
+    this.uglyClearContextPreview();
+
     this.strokeColor = this._lineToEdit!.color;
     this.strokeWidth = this._lineToEdit!.width;
     this._contextPreview.beginPath();
@@ -120,6 +124,7 @@ export class DrawingManager {
 
   public clearCanvas(width: number, height: number): void {
     this._context?.clearRect(0, 0, width, height);
+    this._canvasStorage.clearStorage();
   }
 
   private uglyClearContext(): void {

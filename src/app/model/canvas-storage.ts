@@ -57,6 +57,12 @@ export class CanvasStorage {
 
     return snapshot;
   }
+
+  public clearStorage(): void {
+    this._straightLines = [];
+    this._curvedLines = [];
+    this._points = [];
+  }
   //#endregion
 
   //#region Helpers
