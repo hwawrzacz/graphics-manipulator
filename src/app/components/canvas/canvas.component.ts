@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { fromEvent, Subject } from 'rxjs';
-import { switchMap, takeUntil, tap } from 'rxjs/operators';
+import { finalize, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { CanvasLine } from 'src/app/model/canvas-line';
 import { DrawingMode } from 'src/app/model/canvas-mode';
 import { CanvasPoint } from 'src/app/model/canvas-point';
@@ -107,8 +107,8 @@ export class CanvasComponent implements AfterViewInit {
         this.initializeStraightLineListener();
         break;
 
-      case DrawingMode.STRAIGHT_LINE:
-        this.initializeEditListener();
+      case DrawingMode.EDIT:
+        this.initializeEditListeners();
         break;
 
       default:
@@ -169,7 +169,26 @@ export class CanvasComponent implements AfterViewInit {
       .subscribe();
   }
 
-  private initializeEditListener(): void {
+  private initializeEditListeners(): void {
+    this.initializeHoverPathSelectionListener();
+  }
+
+  private initializeHoverPathSelectionListener(): void {
+    fromEvent<MouseEvent>(this._canvas?.nativeElement!, 'mousemove')
+      .pipe(
+        tap((e: MouseEvent) => {
+          const point = { x: e.offsetX, y: e.offsetY };
+          const line = this._drawingManager!.getLineByPoint(point);
+          if (!!line) {
+            console.log(line);
+            this._drawingManager!.markLineForEdit(line);
+          } else {
+            this._drawingManager!.clearCanvasPreview(this.width, this.height);
+          }
+        }),
+        finalize(() => { }),
+        takeUntil(this._drawingModeChange$)
+      ).subscribe();
   }
   //#endregion
 

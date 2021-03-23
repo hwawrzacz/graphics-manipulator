@@ -2,6 +2,7 @@ import { CanvasLine } from 'src/app/model/canvas-line';
 import { CanvasPoint } from 'src/app/model/canvas-point';
 import { CanvasSnapshot } from 'src/app/model/canvas-snapshot';
 import { CanvasStorage } from 'src/app/model/canvas-storage';
+import { Point } from 'src/app/model/point';
 
 
 /** Class that handles drawing logic */
@@ -37,6 +38,16 @@ export class DrawingManager {
     this._context.fillRect(startingX, startingY, p.width, p.width);
   }
 
+  private drawBoundaryCircle(p: CanvasPoint): void {
+    this.strokeColor = p.color;
+    this._contextPreview.beginPath();
+    const startingX = p.x - Math.floor(p.width / 2);
+    const startingY = p.y - Math.floor(p.width / 2);
+    this._contextPreview.arc(startingX, startingY, p.width + Math.ceil(p.width * .3), 0, 2 * Math.PI);
+    this._contextPreview.closePath();
+    this._contextPreview.stroke();
+  }
+
   public drawLine(line: CanvasLine, addToStorage = false): void {
     this.strokeColor = line.color;
     this.strokeWidth = line.width;
@@ -53,7 +64,6 @@ export class DrawingManager {
     if (addToStorage) {
       this._canvasStorage.addStraightLine(line);
     }
-
   }
 
   public drawStraightLine(line: CanvasLine): void {
@@ -81,5 +91,17 @@ export class DrawingManager {
     snapshot.straightLines.forEach(line => this.drawLine(line));
     snapshot.curvedLines.forEach(line => line.lines.forEach(subline => this.drawLine(subline)));
     snapshot.points.forEach(point => this.drawPoint(point));
+  }
+
+  public getLineByPoint(point: Point): CanvasLine | undefined {
+    return this._canvasStorage.straightLines.find(line => !!line.path && this._context.isPointInStroke(line.path!, point.x, point.y));
+  }
+
+  public markLineForEdit(line: CanvasLine): void {
+    const path = new Path2D();
+    const p1: CanvasPoint = { ...line.p1, color: line.color, width: line.width };
+    const p2: CanvasPoint = { ...line.p2, color: line.color, width: line.width };
+    this.drawBoundaryCircle(p1);
+    this.drawBoundaryCircle(p2);
   }
 }

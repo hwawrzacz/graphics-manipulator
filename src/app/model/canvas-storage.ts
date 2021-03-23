@@ -1,5 +1,3 @@
-import { tap } from 'rxjs/operators';
-import { CanvasStateService } from '../services/canvas-state.service';
 import { CanvasLine } from './canvas-line';
 import { CanvasPoint } from './canvas-point';
 import { CanvasSnapshot } from './canvas-snapshot';
@@ -10,6 +8,11 @@ export class CanvasStorage {
   private _curvedLines: CurvedLine[] = [];
   private _points: CanvasPoint[] = [];
 
+  //#region Getters and setters
+  get straightLines(): CanvasLine[] {
+    return this._straightLines;
+  }
+  //#endregion
   constructor() { }
 
   //#region Straight lines
