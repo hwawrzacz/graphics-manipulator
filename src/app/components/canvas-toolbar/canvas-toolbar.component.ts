@@ -65,9 +65,4 @@ export class CanvasToolbarComponent implements OnInit {
   public openHelpWindow(): void {
     this._dialogService.open(HelpComponent);
   }
-
-  public printStorage(): void {
-    this._canvasStateService.printCanvasStorage$.next();
-  }
-
 }

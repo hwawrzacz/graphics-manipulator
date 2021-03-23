@@ -67,7 +67,6 @@ export class CanvasComponent implements AfterViewInit {
       this.observeDrawingModeChange();
       this.observeCanvasClear();
       this.observeSettingsChanges();
-      this.observeActtionEmissions();
     } catch (exc) {
       this.openSnackBar(`Canvas were not initalized properly. Please try to reload the page`);
     }
@@ -122,10 +121,6 @@ export class CanvasComponent implements AfterViewInit {
           this.clearPreviousPoint()
         })
       ).subscribe();
-  }
-
-  private observeActtionEmissions(): void {
-    this._canvasStateService.printCanvasStorage$.pipe(tap(() => this._drawingManager?.redrawCanvas())).subscribe();
   }
 
   //#region Mouse listeners
