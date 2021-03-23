@@ -21,7 +21,7 @@ export class CanvasStorage {
   }
 
   public removeStraightLine(lineToDelete: CanvasLine): void {
-    this._straightLines = this._straightLines.filter(line => this.areLinesIdentical(line, lineToDelete));
+    this._straightLines = this._straightLines.filter(line => !this.areLinesIdentical(line, lineToDelete));
   }
   //#endregion
 
