@@ -1,11 +1,10 @@
 import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { fromEvent, Subject } from 'rxjs';
-import { finalize, switchMap, takeUntil, tap } from 'rxjs/operators';
+import { filter, finalize, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { CanvasLine } from 'src/app/model/canvas-line';
 import { DrawingMode } from 'src/app/model/canvas-mode';
 import { CanvasPoint } from 'src/app/model/canvas-point';
-import { CanvasStorage } from 'src/app/model/canvas-storage';
 import { CurvedLine } from 'src/app/model/curved-line';
 import { Point } from 'src/app/model/point';
 import { CanvasStateService } from 'src/app/services/canvas-state.service';
@@ -22,7 +21,6 @@ export class CanvasComponent implements AfterViewInit {
   private _prevPoint?: Point;
   private _drawingModeChange$ = new Subject();
   private _drawingManager?: DrawingManager;
-  private _canvasStorage: CanvasStorage;
   private _currentCurvedLine: CurvedLine;
 
   @ViewChild('canvas')
@@ -32,8 +30,8 @@ export class CanvasComponent implements AfterViewInit {
   private _canvasPreview?: ElementRef<HTMLCanvasElement>;
 
   // Config
-  private _width: number = 500;
-  private _height: number = 300;
+  private _width: number = 700;
+  private _height: number = 500;
 
   //#region Getters and setters
   get width(): number {
@@ -60,7 +58,6 @@ export class CanvasComponent implements AfterViewInit {
     private _canvasStateService: CanvasStateService,
     private _snackBar: MatSnackBar,
   ) {
-    this._canvasStorage = new CanvasStorage();
     this._currentCurvedLine = new CurvedLine();
   }
 
@@ -128,7 +125,7 @@ export class CanvasComponent implements AfterViewInit {
   }
 
   private observeActtionEmissions(): void {
-    this._canvasStateService.printCanvasStorage$.pipe(tap(() => this.onRedrawCanvas())).subscribe();
+    this._canvasStateService.printCanvasStorage$.pipe(tap(() => this._drawingManager?.redrawCanvas())).subscribe();
   }
 
   //#region Mouse listeners
@@ -171,6 +168,7 @@ export class CanvasComponent implements AfterViewInit {
 
   private initializeEditListeners(): void {
     this.initializeHoverPathSelectionListener();
+    this.initializeEditedLineResizeListener();
   }
 
   private initializeHoverPathSelectionListener(): void {
@@ -180,15 +178,37 @@ export class CanvasComponent implements AfterViewInit {
           const point = { x: e.offsetX, y: e.offsetY };
           const line = this._drawingManager!.getLineByPoint(point);
           if (!!line) {
-            console.log(line);
-            this._drawingManager!.markLineForEdit(line);
-          } else {
-            this._drawingManager!.clearCanvasPreview(this.width, this.height);
+            this._drawingManager!.selectLineForEdit(line);
           }
         }),
-        finalize(() => { }),
-        takeUntil(this._drawingModeChange$)
+        takeUntil(this._drawingModeChange$),
+        finalize(() => this._drawingManager!.onCancelEdit())
       ).subscribe();
+  }
+
+  private initializeEditedLineResizeListener() {
+    fromEvent<MouseEvent>(this._canvas?.nativeElement!, 'mousedown')
+      .pipe(
+        filter((e: MouseEvent) => {
+          const point = { x: e.offsetX, y: e.offsetY };
+          const isInBoundaryPoint = this._drawingManager!.isInBoundaryPoint(point);
+          if (isInBoundaryPoint) {
+            this._drawingManager?.setDraggablePoint(point);
+          }
+          return isInBoundaryPoint;
+        }),
+        tap(() => this._drawingManager!.removeEditedLineFromStorage()),
+        switchMap(() => fromEvent<MouseEvent>(this._canvas?.nativeElement!, 'mousemove')
+          .pipe(
+            takeUntil(fromEvent<MouseEvent>(this._canvas?.nativeElement!, 'mouseup')
+              .pipe(
+                tap(e => this.onStraightLineEditMouseUp(e)),
+              )))
+        ),
+        tap(e => this.onDrawEditLinePreview(e)),
+        takeUntil(this._drawingModeChange$)
+      )
+      .subscribe();
   }
   //#endregion
 
@@ -205,9 +225,6 @@ export class CanvasComponent implements AfterViewInit {
 
       this._drawingManager!.drawLine(line);
     }
-
-    this._canvasStorage.addCurvedLine(this._currentCurvedLine);
-    this._context!.closePath();
   }
 
   private onStraightLineMouseUp(event: MouseEvent): void {
@@ -221,6 +238,12 @@ export class CanvasComponent implements AfterViewInit {
 
     this._drawingManager!.drawStraightLine(line);
     this.assingPreviousPointFromPoint(newPoint);
+    this._drawingManager!.clearCanvasPreview(this._width, this._height);
+  }
+
+  private onStraightLineEditMouseUp(event: MouseEvent): void {
+    const newPoint = { x: event.offsetX, y: event.offsetY };
+    this._drawingManager!.drawEditedStraightLine(newPoint);
     this._drawingManager!.clearCanvasPreview(this._width, this._height);
   }
 
@@ -240,10 +263,8 @@ export class CanvasComponent implements AfterViewInit {
         width: this.strokeSize
       } as CanvasLine;
       this._drawingManager!.drawLine(line);
-      this._canvasStorage.addStraightLine(line);
     } else {
       this._drawingManager!.drawPoint(newPoint)
-      this._canvasStorage.addPoint(newPoint);
     }
 
     this._prevPoint = { x: newPoint.x, y: newPoint.y };
@@ -279,9 +300,11 @@ export class CanvasComponent implements AfterViewInit {
     this._drawingManager!.drawLinePreview(line);
   }
 
-  private onRedrawCanvas(): void {
-    const snapshot = this._canvasStorage.getSnapshot();
-    this._drawingManager?.redrawFromSnapshot(snapshot);
+  private onDrawEditLinePreview(event: MouseEvent): void {
+    const newPoint = { x: event.offsetX, y: event.offsetY };
+
+    this._drawingManager!.drawEditLinePreview(newPoint);
+    this._drawingManager?.redrawCanvas();
   }
 
   private clearPreviousPoint() {
