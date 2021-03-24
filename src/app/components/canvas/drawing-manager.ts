@@ -5,7 +5,7 @@ import { CanvasStorage } from 'src/app/model/canvas-storage';
 import { Point } from 'src/app/model/point';
 
 
-/** Class that handles drawing logic */
+/** Class that handles drawing logic and canvas storage */
 export class DrawingManager {
   private _canvasStorage: CanvasStorage;
   private _lineToEdit?: CanvasLine = undefined;
@@ -23,6 +23,7 @@ export class DrawingManager {
     this._contextPreview!.lineWidth = strokeSize;
   }
   //#endregion
+
   constructor(
     private _context: CanvasRenderingContext2D,
     private _contextPreview: CanvasRenderingContext2D,
@@ -30,28 +31,16 @@ export class DrawingManager {
     this._canvasStorage = new CanvasStorage();
   }
 
-  //#region Settings
-  //#endregion
-
+  //#region Point
   public drawPoint(p: CanvasPoint): void {
     this.strokeColor = p.color;
     const startingX = p.x - Math.floor(p.width / 2);
     const startingY = p.y - Math.floor(p.width / 2);
     this._context.fillRect(startingX, startingY, p.width, p.width);
   }
+  //#endregion
 
-  private drawBoundaryCircle(p: CanvasPoint): void {
-    this._contextPreview.beginPath();
-    this.strokeColor = p.color;
-    const startingX = p.x - Math.floor(p.width / 2);
-    const startingY = p.y - Math.floor(p.width / 2);
-    this._contextPreview.arc(startingX, startingY, this.boundaryPointDiameter(p.width), 0, 2 * Math.PI);
-    this._contextPreview.fillStyle = p.color;
-    this._contextPreview.fill();
-    this._contextPreview.stroke();
-    this._contextPreview.closePath();
-  }
-
+  //#region Common line
   public drawLine(line: CanvasLine, addToStorage = false): void {
     this.strokeColor = line.color;
     this.strokeWidth = line.width;
@@ -66,9 +55,41 @@ export class DrawingManager {
       this._canvasStorage.addStraightLine(line);
     }
   }
+  //#endregion
 
+  //#region Straght line
   public drawStraightLine(line: CanvasLine): void {
     this.drawLine(line, true);
+  }
+
+  /** Clears canvas preview and draws a preview of new line - the one passed as an argument.
+   * 
+   * @param line the line that should be drawn
+   */
+  public drawStraightLinePreview(line: CanvasLine): void {
+    this.clearCanvasPreview();
+
+    this.strokeColor = line.color;
+    this.strokeWidth = line.width;
+    this._contextPreview.beginPath();
+    this._contextPreview.moveTo(line.p1.x, line.p1.y);
+    this._contextPreview.lineTo(line.p2.x, line.p2.y);
+    this._contextPreview.stroke();
+    this._contextPreview.closePath();
+  }
+  //#endregion
+
+  //#region Edit straight line
+  private drawBoundaryCircle(p: CanvasPoint): void {
+    this._contextPreview.beginPath();
+    this.strokeColor = p.color;
+    const startingX = p.x - Math.floor(p.width / 2);
+    const startingY = p.y - Math.floor(p.width / 2);
+    this._contextPreview.arc(startingX, startingY, this.boundaryPointDiameter(p.width), 0, 2 * Math.PI);
+    this._contextPreview.fillStyle = p.color;
+    this._contextPreview.fill();
+    this._contextPreview.stroke();
+    this._contextPreview.closePath();
   }
 
   public drawEditedStraightLine(point: Point): void {
@@ -92,20 +113,16 @@ export class DrawingManager {
     this._editLineStaticPoint = undefined;
   }
 
-  public drawLinePreview(line: CanvasLine): void {
-    this.uglyClearContextPreview();
-
-    this.strokeColor = line.color;
-    this.strokeWidth = line.width;
-    this._contextPreview.beginPath();
-    this._contextPreview.moveTo(line.p1.x, line.p1.y);
-    this._contextPreview.lineTo(line.p2.x, line.p2.y);
-    this._contextPreview.stroke();
-    this._contextPreview.closePath();
-  }
-
+  /** Clears canvas preview and draws edited line preview. The line consists of two points: 
+   * 
+   * 1. Staic point - which was determined before
+   * 2. New point - the one passed as an argument
+   * 
+   * @param newPoint new second point of edited line.
+   */
   public drawEditLinePreview(newPoint: Point): void {
-    this.uglyClearContextPreview();
+    this.clearCanvasPreview();
+    this.removeEditedLineFromStorage();
 
     this.strokeColor = this._lineToEdit!.color;
     this.strokeWidth = this._lineToEdit!.width;
@@ -115,56 +132,9 @@ export class DrawingManager {
     this._contextPreview.stroke();
     this._contextPreview.closePath();
   }
+  //#endregion
 
-  public redrawCanvas(): void {
-    const snapshot = this._canvasStorage.getSnapshot();
-    this.uglyClearContext();
-    this.redrawFromSnapshot(snapshot);
-  }
-
-  public clearCanvas(width: number, height: number): void {
-    this._context?.clearRect(0, 0, width, height);
-    this._canvasStorage.clearStorage();
-  }
-
-  private uglyClearContext(): void {
-    // TODO: Add clearing context in more civilised way. Drawing manager should pobably have access to canvas width and height.
-    this._context.clearRect(0, 0, 10000, 10000);
-  }
-
-  private uglyClearContextPreview(): void {
-    // TODO: Add clearing context in more civilised way. Drawing manager should pobably have access to canvas width and height.
-    this._contextPreview.clearRect(0, 0, 10000, 10000);
-  }
-
-  public clearCanvasPreview(width: number, height: number): void {
-    this._contextPreview?.clearRect(0, 0, width, height);
-    this._contextPreview?.beginPath();
-  }
-
-  public removeEditedLineFromStorage(): void {
-    if (!!this._lineToEdit) {
-      this._canvasStorage.removeStraightLine(this._lineToEdit);
-    }
-  }
-
-  public redrawFromSnapshot(snapshot: CanvasSnapshot): void {
-    snapshot.straightLines.forEach(line => this.drawLine(line));
-    snapshot.curvedLines.forEach(line => line.lines.forEach(subline => this.drawLine(subline)));
-    snapshot.points.forEach(point => this.drawPoint(point));
-  }
-
-  public getLineByPoint(point: Point): CanvasLine | undefined {
-    return this._canvasStorage.straightLines.find(line => !!line.path && this._context.isPointInStroke(line.path!, point.x, point.y));
-  }
-
-  public isInBoundaryPoint(point: Point): boolean {
-    const isWithinBoundaryPoint1 = !!this._lineToEdit && this.distanceBetweenPoints(point, this._lineToEdit!.p1) <= this.boundaryPointDiameter(this._lineToEdit!.width);
-    const isWithinBoundaryPoint2 = !!this._lineToEdit && this.distanceBetweenPoints(point, this._lineToEdit!.p2) <= this.boundaryPointDiameter(this._lineToEdit!.width);
-
-    return isWithinBoundaryPoint1 || isWithinBoundaryPoint2;
-  }
-
+  //#region Edit straight line visualizers
   public drawBoundaryPoints(line: CanvasLine): void {
     const p1: CanvasPoint = { ...line.p1, color: line.color, width: line.width };
     const p2: CanvasPoint = { ...line.p2, color: line.color, width: line.width };
@@ -174,19 +144,21 @@ export class DrawingManager {
 
   public hideBoundaryPoints(): void {
     if (!this._lineToEdit) {
-      this.uglyClearContextPreview();
+      this.clearCanvasPreview();
     }
   }
+  //#endregion
 
+  //#region Edit straight line helpers
   public selectLineForEdit(line: CanvasLine): void {
-    this.onCancelEdit();
+    this.onCancelCurrentLineEdit();
     this.drawBoundaryPoints(line);
     this._lineToEdit = this._canvasStorage.straightLines.find(ln => ln == line);
   }
 
-  public onCancelEdit(): void {
+  public onCancelCurrentLineEdit(): void {
     this.hideBoundaryPoints();
-    this.uglyClearContextPreview();
+    this.clearCanvasPreview();
     this._lineToEdit = undefined;
   }
 
@@ -204,4 +176,51 @@ export class DrawingManager {
   private boundaryPointDiameter(strokeWidth: number): number {
     return Math.max(strokeWidth + Math.ceil(strokeWidth * .3), 5);
   }
+
+  public isInBoundaryPoint(point: Point): boolean {
+    const isWithinBoundaryPoint1 = !!this._lineToEdit && this.distanceBetweenPoints(point, this._lineToEdit!.p1) <= this.boundaryPointDiameter(this._lineToEdit!.width);
+    const isWithinBoundaryPoint2 = !!this._lineToEdit && this.distanceBetweenPoints(point, this._lineToEdit!.p2) <= this.boundaryPointDiameter(this._lineToEdit!.width);
+
+    return isWithinBoundaryPoint1 || isWithinBoundaryPoint2;
+  }
+  //#endregion
+
+  //#region Canvas editors
+  public redrawCanvas(): void {
+    const snapshot = this._canvasStorage.getSnapshot();
+    this.clearCanvas();
+    this.redrawFromSnapshot(snapshot);
+  }
+
+  public clearCanvas(): void {
+    this._contextPreview.closePath();
+    this._context.clearRect(0, 0, 10000, 10000);
+    this._canvasStorage.clearStorage();
+  }
+
+  public redrawFromSnapshot(snapshot: CanvasSnapshot): void {
+    snapshot.straightLines.forEach(line => this.drawLine(line));
+    snapshot.curvedLines.forEach(line => line.lines.forEach(subline => this.drawLine(subline)));
+    snapshot.points.forEach(point => this.drawPoint(point));
+  }
+
+  public clearCanvasPreview(): void {
+    this._contextPreview.closePath();
+    this._contextPreview.clearRect(0, 0, 10000, 10000);
+  }
+  //#endregion
+
+  //#region Storage management
+  public removeEditedLineFromStorage(): void {
+    if (!!this._lineToEdit) {
+      this._canvasStorage.removeStraightLine(this._lineToEdit);
+    }
+  }
+  //#endregion
+
+  //#region Misc  
+  public getLineByPoint(point: Point): CanvasLine | undefined {
+    return this._canvasStorage.straightLines.find(line => !!line.path && this._context.isPointInStroke(line.path!, point.x, point.y));
+  }
+  //#endregion
 }
