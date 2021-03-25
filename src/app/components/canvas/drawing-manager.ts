@@ -1,5 +1,6 @@
 import { CanvasLine } from 'src/app/model/canvas-line';
 import { CanvasPoint } from 'src/app/model/canvas-point';
+import { CanvasRectangle } from 'src/app/model/canvas-rectangle';
 import { CanvasSnapshot } from 'src/app/model/canvas-snapshot';
 import { CanvasStorage } from 'src/app/model/canvas-storage';
 import { Point } from 'src/app/model/point';
@@ -71,6 +72,34 @@ export class DrawingManager {
     this._contextPreview.beginPath();
     this._contextPreview.moveTo(line.p1.x, line.p1.y);
     this._contextPreview.lineTo(line.p2.x, line.p2.y);
+    this._contextPreview.stroke();
+    this._contextPreview.closePath();
+  }
+  //#endregion
+
+  //#region Square
+
+  public drawRectangle(rectangle: CanvasRectangle): void {
+    this.strokeColor = rectangle.color;
+    this.strokeWidth = rectangle.width;
+    rectangle.path = this.createRectanglePath(rectangle);
+    this._context.stroke(rectangle.path);
+    this._canvasStorage.addRectangle(rectangle);
+  }
+
+  /** Clears canvas preview and draws a preview of new line - the one passed as an argument.
+   * 
+   * @param line the line that should be drawn
+   */
+  public drawRectanglePreview(rectangle: CanvasRectangle): void {
+    this.clearCanvasPreview();
+
+    this.strokeColor = rectangle.color;
+    this.strokeWidth = rectangle.width;
+    this._contextPreview.beginPath();
+    const width = rectangle.p1.x - rectangle.p2.x;
+    const height = rectangle.p1.y - rectangle.p2.y;
+    this._contextPreview.rect(rectangle.p2.x, rectangle.p2.y, width, height);
     this._contextPreview.stroke();
     this._contextPreview.closePath();
   }
@@ -200,6 +229,7 @@ export class DrawingManager {
 
   public redrawFromSnapshot(snapshot: CanvasSnapshot): void {
     snapshot.straightLines.forEach(line => this.drawStraightLine(line));
+    snapshot.rectangles.forEach(rect => this.drawRectangle(rect));
     snapshot.curvedLines.forEach(line => this.drawSubline(line));
     snapshot.points.forEach(point => this.drawPoint(point));
   }
@@ -235,6 +265,21 @@ export class DrawingManager {
     }
     else {
       return line.path;
+    }
+  }
+
+  private createRectanglePath(rectangle: CanvasRectangle): Path2D {
+    if (!rectangle.path) {
+      const path = new Path2D();
+      const width = rectangle.p1.x - rectangle.p2.x;
+      const height = rectangle.p1.y - rectangle.p2.y;
+      path.rect(rectangle.p2.x, rectangle.p2.y, width, height);
+      path.closePath()
+
+      return path;
+    }
+    else {
+      return rectangle.path;
     }
   }
   //#endregion
