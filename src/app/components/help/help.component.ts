@@ -48,6 +48,14 @@ export class HelpComponent {
       ]
     },
     {
+      icon: 'open_in_full',
+      label: 'Edit',
+      descriptionGeneral: 'This mode allows you to edit already drawn straight lines.',
+      descriptionsUsage: [
+        'Move the cursor over the line you want to change. Two resize hooks will appear at each end of the line. Press <strong>LMB</strong> on one of the resize hooks and move the cursor. This will allow you to rearange the line. Release the <strong>LMB</strong>, and your line will be drawn.',
+      ]
+    },
+    {
       icon: 'format_paint',
       iconColor: 'warn',
       label: 'Clear',

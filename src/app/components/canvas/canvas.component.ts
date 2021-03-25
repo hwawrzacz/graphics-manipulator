@@ -1,10 +1,11 @@
-import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { fromEvent, Subject } from 'rxjs';
-import { filter, switchMap, takeUntil, tap } from 'rxjs/operators';
+import { filter, finalize, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { DrawingMode } from 'src/app/model/canvas-mode';
 import { Point } from 'src/app/model/point';
 import { CanvasStateService } from 'src/app/services/canvas-state.service';
+import { DrawingManager } from './drawing-manager';
 
 @Component({
   selector: 'app-canvas',
@@ -15,8 +16,8 @@ export class CanvasComponent implements AfterViewInit {
   private _context?: CanvasRenderingContext2D | null;
   private _contextPreview?: CanvasRenderingContext2D | null;
   private _prevPoint?: Point;
-  private _drawing = false;
   private _drawingModeChange$ = new Subject();
+  private _drawingManager?: DrawingManager;
 
   @ViewChild('canvas')
   private _canvas?: ElementRef<HTMLCanvasElement>;
@@ -24,9 +25,10 @@ export class CanvasComponent implements AfterViewInit {
   @ViewChild('canvasPreview')
   private _canvasPreview?: ElementRef<HTMLCanvasElement>;
 
-  // Config
-  private _width: number = 500;
-  private _height: number = 300;
+  //#region Component config
+  private _width: number = 700;
+  private _height: number = 500;
+  //#endregion
 
   //#region Getters and setters
   get width(): number {
@@ -40,17 +42,12 @@ export class CanvasComponent implements AfterViewInit {
   get drawingMode(): DrawingMode {
     return this._canvasStateService.drawingMode$.value;
   }
-
-  get strokeSize(): number {
-    return this._canvasStateService.strokeWidth$.value;
-  };
-  get strokeColor(): string {
-    return this._canvasStateService.strokeColor$.value;
-  };
   //#endregion
 
-  constructor(private _canvasStateService: CanvasStateService, private _snackBar: MatSnackBar) {
-  }
+  constructor(
+    private _canvasStateService: CanvasStateService,
+    private _snackBar: MatSnackBar,
+  ) { }
 
   ngAfterViewInit(): void {
     try {
@@ -63,20 +60,11 @@ export class CanvasComponent implements AfterViewInit {
     }
   }
 
+  //#region Initializers
   private initializeContexts(): void {
     this._context = this._canvas!.nativeElement.getContext('2d');
     this._contextPreview = this._canvasPreview!.nativeElement.getContext('2d');
-  }
-
-  private setStrokeColor(strokeColor: string): void {
-    this._context!.fillStyle = strokeColor;
-    this._context!.strokeStyle = strokeColor;
-    this._contextPreview!.strokeStyle = strokeColor;
-  }
-
-  private setStrokeWidth(strokeSize: number): void {
-    this._context!.lineWidth = strokeSize;
-    this._contextPreview!.lineWidth = strokeSize;
+    this._drawingManager = new DrawingManager(this._context!, this._contextPreview!, this._canvasStateService);
   }
 
   private observeDrawingModeChange(): void {
@@ -90,8 +78,8 @@ export class CanvasComponent implements AfterViewInit {
   }
 
   private observeSettingsChanges(): void {
-    this._canvasStateService.strokeColor$.pipe(tap(color => this.setStrokeColor(color))).subscribe();
-    this._canvasStateService.strokeWidth$.pipe(tap(width => this.setStrokeWidth(width))).subscribe();
+    this._canvasStateService.strokeColor$.pipe(tap(color => this._drawingManager!.strokeColor = color)).subscribe();
+    this._canvasStateService.strokeWidth$.pipe(tap(width => this._drawingManager!.strokeWidth = width)).subscribe();
   }
 
   private switchMode(mode: DrawingMode): void {
@@ -104,30 +92,45 @@ export class CanvasComponent implements AfterViewInit {
         this.initializeStraightLineListener();
         break;
 
+      case DrawingMode.EDIT:
+        this.initializeEditListeners();
+        break;
+
+      case DrawingMode.RECTANGLE:
+        this.initializeRectangleListener();
+        break;
+
+      case DrawingMode.ELLIPSE:
+        this.initializeEllipseListener();
+        break;
+
       default:
         this.openSnackBar('Selected mode is not supported yet');
     }
   }
+  //#endregion
 
+  //#region Actions listeners
   private observeCanvasClear(): void {
     this._canvasStateService.clear$
       .pipe(
         tap(() => {
-          this.clearCanvas();
-          this.clearCanvasPreview();
-          this.clearPreviousPoint()
+          this._drawingManager!.clearCanvasPreview();
+          this._drawingManager!.clearCanvas(true);
+          this.clearPreviousPoint();
         })
       ).subscribe();
   }
+  //#endregion
 
   //#region Mouse listeners
+  // Curved line
   private initializeDrawingListener() {
     fromEvent<MouseEvent>(this._canvas?.nativeElement!, 'mousedown')
       .pipe(
         tap(e => this.onDrawPoint(e)),
         switchMap(() => fromEvent<MouseEvent>(this._canvas?.nativeElement!, 'mousemove')
           .pipe(
-            tap(() => this._drawing = true),
             takeUntil(fromEvent<MouseEvent>(document, 'mouseup')
               .pipe(
                 tap(e => this.onMouseUp(e)),
@@ -139,6 +142,7 @@ export class CanvasComponent implements AfterViewInit {
       .subscribe();
   }
 
+  // Straight line
   private initializeStraightLineListener(): void {
     fromEvent<MouseEvent>(this._canvas?.nativeElement!, 'mousedown')
       .pipe(
@@ -150,61 +154,111 @@ export class CanvasComponent implements AfterViewInit {
                 tap(e => this.onStraightLineMouseUp(e)),
               )))
         ),
-        tap(e => this.onDrawLinePreview(e)),
+        tap(e => this.onDrawStraightLinePreview(e)),
+        takeUntil(this._drawingModeChange$)
+      )
+      .subscribe();
+  }
+
+  // Rectangle
+  private initializeRectangleListener(): void {
+    fromEvent<MouseEvent>(this._canvas?.nativeElement!, 'mousedown')
+      .pipe(
+        tap(e => this.assingPreviousPointFromEvent(e)),
+        switchMap(() => fromEvent<MouseEvent>(this._canvas?.nativeElement!, 'mousemove')
+          .pipe(
+            takeUntil(fromEvent<MouseEvent>(this._canvas?.nativeElement!, 'mouseup')
+              .pipe(
+                tap(e => this.onRectangleMouseUp(e)),
+              )))
+        ),
+        tap(e => this.onDrawRectanglePreview(e)),
+        takeUntil(this._drawingModeChange$)
+      )
+      .subscribe();
+  }
+
+  // Rectangle
+  private initializeEllipseListener(): void {
+    fromEvent<MouseEvent>(this._canvas?.nativeElement!, 'mousedown')
+      .pipe(
+        tap(e => this.assingPreviousPointFromEvent(e)),
+        switchMap(() => fromEvent<MouseEvent>(this._canvas?.nativeElement!, 'mousemove')
+          .pipe(
+            takeUntil(fromEvent<MouseEvent>(this._canvas?.nativeElement!, 'mouseup')
+              .pipe(
+                tap(e => this.onEllipseMouseUp(e)),
+              )))
+        ),
+        tap(e => this.onDrawEllipsePreview(e)),
+        takeUntil(this._drawingModeChange$)
+      )
+      .subscribe();
+  }
+
+  // Edit line
+  private initializeEditListeners(): void {
+    this.initializeHoverPathSelectionListener();
+    this.initializeEditedLineResizeListener();
+  }
+
+  // Edit line detection
+  private initializeHoverPathSelectionListener(): void {
+    fromEvent<MouseEvent>(this._canvas?.nativeElement!, 'mousemove')
+      .pipe(
+        tap((e: MouseEvent) => {
+          const point = { x: e.offsetX, y: e.offsetY };
+          const line = this._drawingManager!.getLineByPoint(point);
+          if (!!line) {
+            this._drawingManager!.selectLineForEdit(line);
+          }
+        }),
+        takeUntil(this._drawingModeChange$),
+        finalize(() => this._drawingManager!.onCancelCurrentLineEdit())
+      ).subscribe();
+  }
+
+  // Edit line manipulation
+  private initializeEditedLineResizeListener() {
+    fromEvent<MouseEvent>(this._canvas?.nativeElement!, 'mousedown')
+      .pipe(
+        filter((e: MouseEvent) => {
+          const point = { x: e.offsetX, y: e.offsetY };
+          const isInBoundaryPoint = this._drawingManager!.isInBoundaryPoint(point);
+          if (isInBoundaryPoint) {
+            this._drawingManager?.setDraggablePoint(point);
+          }
+          return isInBoundaryPoint;
+        }),
+        tap(() => {
+          this._drawingManager?.removeEditedLineFromStorage();
+          this._drawingManager?.redrawCanvas();
+        }),
+        switchMap(() => fromEvent<MouseEvent>(this._canvas?.nativeElement!, 'mousemove')
+          .pipe(
+            takeUntil(fromEvent<MouseEvent>(this._canvas?.nativeElement!, 'mouseup')
+              .pipe(
+                tap(e => this.onStraightLineEditMouseUp(e)),
+              )))
+        ),
+        tap(e => this.onDrawEditLinePreview(e)),
         takeUntil(this._drawingModeChange$)
       )
       .subscribe();
   }
   //#endregion
 
+  // ==============================================================================
+  // ======== Below are parts of code that can be moved to another classes ========
+  // ==============================================================================
+
+  //#region Curved line
   private onMouseUp(event: MouseEvent): void {
-    this._drawing = false;
     const newPoint = { x: event.offsetX, y: event.offsetY };
 
     if (event.shiftKey) {
-      this.drawLine(this._prevPoint!, newPoint);
+      this._drawingManager!.drawSubline(this._prevPoint!, newPoint);
     }
-
-    this._context!.closePath();
-  }
-
-  private onStraightLineMouseUp(event: MouseEvent): void {
-    const newPoint = { x: event.offsetX, y: event.offsetY };
-    this.drawLine(this._prevPoint!, newPoint);
-    if (!this._drawing) {
-      this.assingPreviousPointFromPoint(newPoint);
-    }
-    this._context!.closePath();
-    this.clearCanvasPreview();
-  }
-
-  private onDrawPoint(event: MouseEvent): void {
-    const newPoint = { x: event.offsetX, y: event.offsetY };
-
-    event.shiftKey && this._prevPoint
-      ? this.drawLine(this._prevPoint, newPoint)
-      : this.drawPoint(newPoint)
-
-    this._prevPoint = { x: newPoint.x, y: newPoint.y };
-  }
-
-  private drawPoint(p1: Point): void {
-    const startingX = p1.x - Math.floor(this.strokeSize / 2);
-    const startingY = p1.y - Math.floor(this.strokeSize / 2);
-    this._context?.fillRect(startingX, startingY, this.strokeSize, this.strokeSize);
-  }
-
-  private drawLine(p1: Point, p2: Point): void {
-    this._context!.beginPath();
-    this._context!.moveTo(p1.x, p1.y);
-    this._context!.lineTo(p2.x, p2.y);
-    this._context!.stroke();
-  }
-
-  private drawLinePreview(p1: Point, p2: Point): void {
-    this._contextPreview!.moveTo(p1.x, p1.y);
-    this._contextPreview!.lineTo(p2.x, p2.y);
-    this._contextPreview!.stroke();
   }
 
   private onDrawLine(event: MouseEvent): void {
@@ -213,30 +267,89 @@ export class CanvasComponent implements AfterViewInit {
       this.assingPreviousPointFromPoint(newPoint);
     }
 
-    if (event.shiftKey) {
-      console.log('shift');
-    } else {
-      this.drawLine(this._prevPoint!, newPoint);
-    }
-
+    this._drawingManager!.drawSubline(this._prevPoint!, newPoint);
     this.assingPreviousPointFromPoint(newPoint);
   }
+  //#endregion
 
-  private onDrawLinePreview(event: MouseEvent): void {
-    this.clearCanvasPreview();
+  //#region Straight line
+  private onStraightLineMouseUp(event: MouseEvent): void {
     const newPoint = { x: event.offsetX, y: event.offsetY };
-    this.drawLinePreview(this._prevPoint!, newPoint);
+
+    this._drawingManager!.drawStraightLine(this._prevPoint!, newPoint);
+    this.assingPreviousPointFromPoint(newPoint);
+    this._drawingManager!.clearCanvasPreview();
   }
 
-  private clearCanvas(): void {
-    this._context?.clearRect(0, 0, this._width, this._height);
+  private onDrawStraightLinePreview(event: MouseEvent): void {
+    const newPoint = { x: event.offsetX, y: event.offsetY };
+
+    this._drawingManager!.clearCanvasPreview();
+    this._drawingManager!.drawStraightLinePreview(this._prevPoint!, newPoint);
+  }
+  //#endregion
+
+  //#region Rectangle
+  private onRectangleMouseUp(event: MouseEvent): void {
+    const newPoint = { x: event.offsetX, y: event.offsetY };
+    this._drawingManager!.drawRectangle(this._prevPoint!, newPoint);
+    this.assingPreviousPointFromPoint(newPoint);
+    this._drawingManager!.clearCanvasPreview();
   }
 
-  private clearCanvasPreview(): void {
-    this._contextPreview?.clearRect(0, 0, this._width, this._height);
-    this._contextPreview?.beginPath();
+  private onDrawRectanglePreview(event: MouseEvent): void {
+    const newPoint = { x: event.offsetX, y: event.offsetY };
+    this._drawingManager!.clearCanvasPreview();
+    this._drawingManager!.drawRectanglePreview(this._prevPoint!, newPoint);
+  }
+  //#endregion
+
+  //#region Ellipse
+  private onEllipseMouseUp(event: MouseEvent): void {
+    const newPoint = { x: event.offsetX, y: event.offsetY };
+    this._drawingManager!.drawEllipse(this._prevPoint!, newPoint);
+    this.assingPreviousPointFromPoint(newPoint);
+    this._drawingManager!.clearCanvasPreview();
   }
 
+  private onDrawEllipsePreview(event: MouseEvent): void {
+    const newPoint = { x: event.offsetX, y: event.offsetY };
+    this._drawingManager!.clearCanvasPreview();
+    this._drawingManager!.drawEllipsePreview(this._prevPoint!, newPoint);
+  }
+  //#endregion
+
+  //#region Edit straight line
+  private onDrawEditLinePreview(event: MouseEvent): void {
+    const newPoint = { x: event.offsetX, y: event.offsetY };
+    this._drawingManager!.drawEditLinePreview(newPoint);
+  }
+
+  private onStraightLineEditMouseUp(event: MouseEvent): void {
+    const newPoint = { x: event.offsetX, y: event.offsetY };
+    this._drawingManager!.drawEditedStraightLine(newPoint);
+    this._drawingManager!.clearCanvasPreview();
+  }
+  //#endregion
+
+  //#region Point
+  private onDrawPoint(event: MouseEvent): void {
+    const newPoint = {
+      x: event.offsetX,
+      y: event.offsetY
+    } as Point;
+
+    if (event.shiftKey && this._prevPoint) {
+      this._drawingManager!.drawSubline(this._prevPoint!, newPoint);
+    } else {
+      this._drawingManager!.drawPoint(newPoint)
+    }
+
+    this._prevPoint = { x: newPoint.x, y: newPoint.y };
+  }
+  //#endregion
+
+  //#region Helpers
   private clearPreviousPoint() {
     this._prevPoint = undefined;
   }
@@ -252,4 +365,5 @@ export class CanvasComponent implements AfterViewInit {
   private openSnackBar(message: string): void {
     this._snackBar.open(message, undefined, { duration: 3000 });
   }
+  //#endregion
 }

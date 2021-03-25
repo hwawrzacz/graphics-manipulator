@@ -23,12 +23,16 @@ export class CanvasToolbarComponent implements OnInit {
     return this._canvasStateService.drawingMode$.value === DrawingMode.STRAIGHT_LINE;
   }
 
-  get isSquareMode(): boolean {
-    return this._canvasStateService.drawingMode$.value === DrawingMode.SQUARE;
+  get isRectangleMode(): boolean {
+    return this._canvasStateService.drawingMode$.value === DrawingMode.RECTANGLE;
   }
 
-  get isCircleMode(): boolean {
-    return this._canvasStateService.drawingMode$.value === DrawingMode.CIRCLE;
+  get isEllipseMode(): boolean {
+    return this._canvasStateService.drawingMode$.value === DrawingMode.ELLIPSE;
+  }
+
+  get isEditMode(): boolean {
+    return this._canvasStateService.drawingMode$.value === DrawingMode.EDIT;
   }
   //#endregion
 
@@ -42,12 +46,16 @@ export class CanvasToolbarComponent implements OnInit {
     this._canvasStateService.drawingMode$.next(DrawingMode.STRAIGHT_LINE);
   }
 
-  public enableSquareMode(): void {
-    this._canvasStateService.drawingMode$.next(DrawingMode.SQUARE);
+  public enableRectangleMode(): void {
+    this._canvasStateService.drawingMode$.next(DrawingMode.RECTANGLE);
   }
 
-  public enableCircleMode(): void {
-    this._canvasStateService.drawingMode$.next(DrawingMode.CIRCLE);
+  public enableEllipseMode(): void {
+    this._canvasStateService.drawingMode$.next(DrawingMode.ELLIPSE);
+  }
+
+  public enableEditMode(): void {
+    this._canvasStateService.drawingMode$.next(DrawingMode.EDIT);
   }
 
   public clearCanvas(): void {
