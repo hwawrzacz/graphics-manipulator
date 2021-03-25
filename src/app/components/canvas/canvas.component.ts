@@ -117,8 +117,8 @@ export class CanvasComponent implements AfterViewInit {
     this._canvasStateService.clear$
       .pipe(
         tap(() => {
-          this._drawingManager!.clearCanvas();
           this._drawingManager!.clearCanvasPreview();
+          this._drawingManager!.clearCanvas(true);
           this.clearPreviousPoint()
         })
       ).subscribe();
@@ -191,6 +191,10 @@ export class CanvasComponent implements AfterViewInit {
           }
           return isInBoundaryPoint;
         }),
+        tap(() => {
+          this._drawingManager?.removeEditedLineFromStorage();
+          this._drawingManager?.redrawCanvas();
+        }),
         switchMap(() => fromEvent<MouseEvent>(this._canvas?.nativeElement!, 'mousemove')
           .pipe(
             takeUntil(fromEvent<MouseEvent>(this._canvas?.nativeElement!, 'mouseup')
@@ -209,13 +213,13 @@ export class CanvasComponent implements AfterViewInit {
   // ======== Below are parts of code that can be moved to another classes ========
   // ==============================================================================
 
-  //#region CurvedLine
+  //#region Curved line
   private onMouseUp(event: MouseEvent): void {
     const newPoint = { x: event.offsetX, y: event.offsetY };
 
     if (event.shiftKey) {
       const line = this.canvasLineFromPreviousPoint(newPoint);
-      this._drawingManager!.drawLine(line);
+      this._drawingManager!.drawSubline(line);
     }
   }
 
@@ -226,7 +230,7 @@ export class CanvasComponent implements AfterViewInit {
     }
     const line = this.canvasLineFromPreviousPoint(newPoint);
 
-    this._drawingManager!.drawLine(line);
+    this._drawingManager!.drawSubline(line);
     this.assingPreviousPointFromPoint(newPoint);
   }
   //#endregion
@@ -253,9 +257,7 @@ export class CanvasComponent implements AfterViewInit {
   //#region Edit straight line
   private onDrawEditLinePreview(event: MouseEvent): void {
     const newPoint = { x: event.offsetX, y: event.offsetY };
-
     this._drawingManager!.drawEditLinePreview(newPoint);
-    this._drawingManager?.redrawCanvas();
   }
 
   private onStraightLineEditMouseUp(event: MouseEvent): void {
@@ -276,7 +278,7 @@ export class CanvasComponent implements AfterViewInit {
 
     if (event.shiftKey && this._prevPoint) {
       const line = this.canvasLineFromPreviousPoint(newPoint);
-      this._drawingManager!.drawLine(line);
+      this._drawingManager!.drawSubline(line);
     } else {
       this._drawingManager!.drawPoint(newPoint)
     }

@@ -1,11 +1,10 @@
 import { CanvasLine } from './canvas-line';
 import { CanvasPoint } from './canvas-point';
 import { CanvasSnapshot } from './canvas-snapshot';
-import { CurvedLine } from './curved-line';
 
 export class CanvasStorage {
   private _straightLines: CanvasLine[] = [];
-  private _curvedLines: CurvedLine[] = [];
+  private _curvedLines: CanvasLine[] = [];
   private _points: CanvasPoint[] = [];
 
   //#region Getters and setters
@@ -26,7 +25,7 @@ export class CanvasStorage {
   //#endregion
 
   //#region Curved lines
-  public addCurvedLine(line: CurvedLine): void {
+  public addCurvedLine(line: CanvasLine): void {
     this._curvedLines.push(line);
   }
   //#endregion

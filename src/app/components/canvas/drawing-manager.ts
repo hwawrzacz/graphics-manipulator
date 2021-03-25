@@ -41,25 +41,22 @@ export class DrawingManager {
   //#endregion
 
   //#region Common line
-  public drawLine(line: CanvasLine, addToStorage = false): void {
+  public drawSubline(line: CanvasLine): void {
     this.strokeColor = line.color;
     this.strokeWidth = line.width;
-    if (!line.path) {
-      line.path = new Path2D()
-      line.path.moveTo(line.p1.x, line.p1.y);
-      line.path.lineTo(line.p2.x, line.p2.y);
-      line.path.closePath()
-    }
+    line.path = this.createLinePath(line);
     this._context.stroke(line.path);
-    if (addToStorage) {
-      this._canvasStorage.addStraightLine(line);
-    }
+    this._canvasStorage.addCurvedLine(line);
   }
   //#endregion
 
   //#region Straght line
   public drawStraightLine(line: CanvasLine): void {
-    this.drawLine(line, true);
+    this.strokeColor = line.color;
+    this.strokeWidth = line.width;
+    line.path = this.createLinePath(line);
+    this._context.stroke(line.path);
+    this._canvasStorage.addStraightLine(line);
   }
 
   /** Clears canvas preview and draws a preview of new line - the one passed as an argument.
@@ -192,15 +189,18 @@ export class DrawingManager {
     this.redrawFromSnapshot(snapshot);
   }
 
-  public clearCanvas(): void {
+  public clearCanvas(clearStorage = false): void {
     this._contextPreview.closePath();
     this._context.clearRect(0, 0, 10000, 10000);
-    this._canvasStorage.clearStorage();
+
+    if (clearStorage) {
+      this._canvasStorage.clearStorage();
+    }
   }
 
   public redrawFromSnapshot(snapshot: CanvasSnapshot): void {
-    snapshot.straightLines.forEach(line => this.drawLine(line));
-    snapshot.curvedLines.forEach(line => line.lines.forEach(subline => this.drawLine(subline)));
+    snapshot.straightLines.forEach(line => this.drawStraightLine(line));
+    snapshot.curvedLines.forEach(line => this.drawSubline(line));
     snapshot.points.forEach(point => this.drawPoint(point));
   }
 
@@ -221,6 +221,21 @@ export class DrawingManager {
   //#region Misc  
   public getLineByPoint(point: Point): CanvasLine | undefined {
     return this._canvasStorage.straightLines.find(line => !!line.path && this._context.isPointInStroke(line.path!, point.x, point.y));
+  }
+
+  /** Returns the path made out of the line. If the passed line already has a path, then this path is being returned */
+  private createLinePath(line: CanvasLine): Path2D {
+    if (!line.path) {
+      const path = new Path2D()
+      path.moveTo(line.p1.x, line.p1.y);
+      path.lineTo(line.p2.x, line.p2.y);
+      path.closePath()
+
+      return path;
+    }
+    else {
+      return line.path;
+    }
   }
   //#endregion
 }
