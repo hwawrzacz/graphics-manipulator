@@ -19,9 +19,9 @@
         <mat-icon> horizontal_rule </mat-icon> <span class="button-label">Straight line</span>
       </button>
 
-      <button mat-button [class.active]="isSquareMode" (click)="enableSquareMode()" matTooltip="Square"
-        matTooltipClass="tooltip-visibility" disabled>
-        <mat-icon> crop_square </mat-icon> <span class="button-label">Square</span>
+      <button mat-button [class.active]="isRectangleMode" (click)="enableRectangleMode()" matTooltip="Rectangle"
+        matTooltipClass="tooltip-visibility">
+        <mat-icon> crop_square </mat-icon> <span class="button-label">Rectangle</span>
       </button>
 
       <button mat-button [class.active]="isCircleMode" (click)="enableCircleMode()" matTooltip="Circle"

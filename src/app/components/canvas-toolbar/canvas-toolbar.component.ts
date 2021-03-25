@@ -23,8 +23,8 @@ export class CanvasToolbarComponent implements OnInit {
     return this._canvasStateService.drawingMode$.value === DrawingMode.STRAIGHT_LINE;
   }
 
-  get isSquareMode(): boolean {
-    return this._canvasStateService.drawingMode$.value === DrawingMode.SQUARE;
+  get isRectangleMode(): boolean {
+    return this._canvasStateService.drawingMode$.value === DrawingMode.RECTANGLE;
   }
 
   get isCircleMode(): boolean {
@@ -46,8 +46,8 @@ export class CanvasToolbarComponent implements OnInit {
     this._canvasStateService.drawingMode$.next(DrawingMode.STRAIGHT_LINE);
   }
 
-  public enableSquareMode(): void {
-    this._canvasStateService.drawingMode$.next(DrawingMode.SQUARE);
+  public enableRectangleMode(): void {
+    this._canvasStateService.drawingMode$.next(DrawingMode.RECTANGLE);
   }
 
   public enableCircleMode(): void {
