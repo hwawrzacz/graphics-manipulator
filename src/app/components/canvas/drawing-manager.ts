@@ -79,11 +79,11 @@ export class DrawingManager {
 
   //#region Square
 
-  public drawRectangle(rectangle: CanvasRectangle): void {
-    this.strokeColor = rectangle.color;
-    this.strokeWidth = rectangle.width;
-    rectangle.path = this.createRectanglePath(rectangle);
-    this._context.stroke(rectangle.path);
+  public drawRectangle(p1: Point, p2: Point): void {
+    this.strokeColor = this.strokeColor;
+    this.strokeWidth = this.strokeWidth;
+    const rectangle = this.createRectangle(p1, p2);
+    this._context.stroke(rectangle.path!);
     this._canvasStorage.addRectangle(rectangle);
   }
 
@@ -91,12 +91,13 @@ export class DrawingManager {
    * 
    * @param line the line that should be drawn
    */
-  public drawRectanglePreview(rectangle: CanvasRectangle): void {
+  public drawRectanglePreview(p1: Point, p2: Point): void {
     this.clearCanvasPreview();
 
-    this.strokeColor = rectangle.color;
-    this.strokeWidth = rectangle.width;
+    this.strokeColor = this.strokeColor;
+    this.strokeWidth = this.strokeWidth;
     this._contextPreview.beginPath();
+    const rectangle = this.createRectangle(p1, p2);
     const width = rectangle.p1.x - rectangle.p2.x;
     const height = rectangle.p1.y - rectangle.p2.y;
     this._contextPreview.rect(rectangle.p2.x, rectangle.p2.y, width, height);
@@ -229,7 +230,7 @@ export class DrawingManager {
 
   public redrawFromSnapshot(snapshot: CanvasSnapshot): void {
     snapshot.straightLines.forEach(line => this.drawStraightLine(line));
-    snapshot.rectangles.forEach(rect => this.drawRectangle(rect));
+    snapshot.rectangles.forEach(rect => this.drawRectangle(rect.p1, rect.p2));
     snapshot.curvedLines.forEach(line => this.drawSubline(line));
     snapshot.points.forEach(point => this.drawPoint(point));
   }
@@ -281,6 +282,18 @@ export class DrawingManager {
     else {
       return rectangle.path;
     }
+  }
+
+  private createRectangle(p1: Point, p2: Point): CanvasRectangle {
+    const rect = {
+      p1: p1,
+      p2: p2,
+      color: this.strokeColor,
+      width: this.strokeWidth
+    } as CanvasRectangle;
+    rect.path = this.createRectanglePath(rect);
+
+    return rect;
   }
   //#endregion
 }

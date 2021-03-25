@@ -285,19 +285,15 @@ export class CanvasComponent implements AfterViewInit {
   //#region Rectangle
   private onRectangleMouseUp(event: MouseEvent): void {
     const newPoint = { x: event.offsetX, y: event.offsetY };
-    const rectangle = this.rectangleFromPreviousPoint(newPoint);
-
-    this._drawingManager!.drawRectangle(rectangle);
+    this._drawingManager!.drawRectangle(this._prevPoint!, newPoint);
     this.assingPreviousPointFromPoint(newPoint);
     this._drawingManager!.clearCanvasPreview();
   }
 
   private onDrawRectanglePreview(event: MouseEvent): void {
     const newPoint = { x: event.offsetX, y: event.offsetY };
-    const rectangle = this.rectangleFromPreviousPoint(newPoint);
-
     this._drawingManager!.clearCanvasPreview();
-    this._drawingManager!.drawRectanglePreview(rectangle);
+    this._drawingManager!.drawRectanglePreview(this._prevPoint!, newPoint);
   }
   //#endregion
 
@@ -345,15 +341,6 @@ export class CanvasComponent implements AfterViewInit {
       color: this.strokeColor,
       width: this.strokeSize
     } as CanvasLine;
-  }
-
-  private rectangleFromPreviousPoint(newPoint: Point): CanvasRectangle {
-    return {
-      p1: newPoint,
-      p2: this._prevPoint,
-      color: this.strokeColor,
-      width: this.strokeSize
-    } as CanvasRectangle;
   }
 
   private clearPreviousPoint() {
