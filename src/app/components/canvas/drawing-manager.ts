@@ -4,6 +4,7 @@ import { CanvasRectangle } from 'src/app/model/canvas-rectangle';
 import { CanvasSnapshot } from 'src/app/model/canvas-snapshot';
 import { CanvasStorage } from 'src/app/model/canvas-storage';
 import { Point } from 'src/app/model/point';
+import { CanvasStateService } from 'src/app/services/canvas-state.service';
 
 
 /** Class that handles drawing logic and canvas storage */
@@ -24,30 +25,29 @@ export class DrawingManager {
     this._contextPreview!.lineWidth = strokeSize;
   }
 
-  get strokeColor(): string {
-    return this._context!.strokeStyle as string;
-  }
-
   get strokeWidth(): number {
-    return this._context!.lineWidth
-  }
+    return this._canvasStateService.strokeWidth$.value;
+  };
+
+  get strokeColor(): string {
+    return this._canvasStateService.strokeColor$.value;
+  };
   //#endregion
 
   constructor(
     private _context: CanvasRenderingContext2D,
     private _contextPreview: CanvasRenderingContext2D,
+    private _canvasStateService: CanvasStateService,
   ) {
     this._canvasStorage = new CanvasStorage();
-    this.strokeColor = '#373737';
-    this.strokeWidth = 2;
   }
 
   //#region Point
-  public drawPoint(p: CanvasPoint): void {
-    this.strokeColor = p.color;
-    const startingX = p.x - Math.floor(p.width / 2);
-    const startingY = p.y - Math.floor(p.width / 2);
-    this._context.fillRect(startingX, startingY, p.width, p.width);
+  public drawPoint(p: Point): void {
+    this.strokeColor = this.strokeColor;
+    const startingX = p.x - Math.floor(this.strokeWidth / 2);
+    const startingY = p.y - Math.floor(this.strokeWidth / 2);
+    this._context.fillRect(startingX, startingY, this.strokeWidth, this.strokeWidth);
   }
   //#endregion
 
@@ -261,7 +261,6 @@ export class DrawingManager {
 
   //#region Misc  
   public getLineByPoint(point: Point): CanvasLine | undefined {
-    console.log(this._canvasStorage.straightLines);
     return this._canvasStorage.straightLines.find(line => !!line.path && this._context.isPointInStroke(line.path!, point.x, point.y));
   }
   //#endregion

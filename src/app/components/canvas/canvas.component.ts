@@ -2,10 +2,7 @@ import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { fromEvent, Subject } from 'rxjs';
 import { filter, finalize, switchMap, takeUntil, tap } from 'rxjs/operators';
-import { CanvasLine } from 'src/app/model/canvas-line';
 import { DrawingMode } from 'src/app/model/canvas-mode';
-import { CanvasPoint } from 'src/app/model/canvas-point';
-import { CanvasRectangle } from 'src/app/model/canvas-rectangle';
 import { Point } from 'src/app/model/point';
 import { CanvasStateService } from 'src/app/services/canvas-state.service';
 import { DrawingManager } from './drawing-manager';
@@ -45,14 +42,6 @@ export class CanvasComponent implements AfterViewInit {
   get drawingMode(): DrawingMode {
     return this._canvasStateService.drawingMode$.value;
   }
-
-  get strokeSize(): number {
-    return this._canvasStateService.strokeWidth$.value;
-  };
-
-  get strokeColor(): string {
-    return this._canvasStateService.strokeColor$.value;
-  };
   //#endregion
 
   constructor(
@@ -75,7 +64,7 @@ export class CanvasComponent implements AfterViewInit {
   private initializeContexts(): void {
     this._context = this._canvas!.nativeElement.getContext('2d');
     this._contextPreview = this._canvasPreview!.nativeElement.getContext('2d');
-    this._drawingManager = new DrawingManager(this._context!, this._contextPreview!);
+    this._drawingManager = new DrawingManager(this._context!, this._contextPreview!, this._canvasStateService);
   }
 
   private observeDrawingModeChange(): void {
@@ -310,10 +299,8 @@ export class CanvasComponent implements AfterViewInit {
   private onDrawPoint(event: MouseEvent): void {
     const newPoint = {
       x: event.offsetX,
-      y: event.offsetY,
-      color: this.strokeColor,
-      width: this.strokeSize
-    } as CanvasPoint;
+      y: event.offsetY
+    } as Point;
 
     if (event.shiftKey && this._prevPoint) {
       this._drawingManager!.drawSubline(this._prevPoint!, newPoint);
