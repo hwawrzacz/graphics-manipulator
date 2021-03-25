@@ -100,6 +100,10 @@ export class CanvasComponent implements AfterViewInit {
         this.initializeRectangleListener();
         break;
 
+      case DrawingMode.ELLIPSE:
+        this.initializeEllipseListener();
+        break;
+
       default:
         this.openSnackBar('Selected mode is not supported yet');
     }
@@ -169,6 +173,24 @@ export class CanvasComponent implements AfterViewInit {
               )))
         ),
         tap(e => this.onDrawRectanglePreview(e)),
+        takeUntil(this._drawingModeChange$)
+      )
+      .subscribe();
+  }
+
+  // Rectangle
+  private initializeEllipseListener(): void {
+    fromEvent<MouseEvent>(this._canvas?.nativeElement!, 'mousedown')
+      .pipe(
+        tap(e => this.assingPreviousPointFromEvent(e)),
+        switchMap(() => fromEvent<MouseEvent>(this._canvas?.nativeElement!, 'mousemove')
+          .pipe(
+            takeUntil(fromEvent<MouseEvent>(this._canvas?.nativeElement!, 'mouseup')
+              .pipe(
+                tap(e => this.onEllipseMouseUp(e)),
+              )))
+        ),
+        tap(e => this.onDrawEllipsePreview(e)),
         takeUntil(this._drawingModeChange$)
       )
       .subscribe();
@@ -279,6 +301,21 @@ export class CanvasComponent implements AfterViewInit {
     const newPoint = { x: event.offsetX, y: event.offsetY };
     this._drawingManager!.clearCanvasPreview();
     this._drawingManager!.drawRectanglePreview(this._prevPoint!, newPoint);
+  }
+  //#endregion
+
+  //#region Ellipse
+  private onEllipseMouseUp(event: MouseEvent): void {
+    const newPoint = { x: event.offsetX, y: event.offsetY };
+    this._drawingManager!.drawEllipse(this._prevPoint!, newPoint);
+    this.assingPreviousPointFromPoint(newPoint);
+    this._drawingManager!.clearCanvasPreview();
+  }
+
+  private onDrawEllipsePreview(event: MouseEvent): void {
+    const newPoint = { x: event.offsetX, y: event.offsetY };
+    this._drawingManager!.clearCanvasPreview();
+    this._drawingManager!.drawEllipsePreview(this._prevPoint!, newPoint);
   }
   //#endregion
 

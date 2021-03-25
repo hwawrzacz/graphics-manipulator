@@ -2,6 +2,6 @@ export enum DrawingMode {
   DRAWING,
   STRAIGHT_LINE,
   RECTANGLE,
-  CIRCLE,
+  ELLIPSE,
   EDIT
 }

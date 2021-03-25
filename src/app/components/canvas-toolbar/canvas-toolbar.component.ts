@@ -27,8 +27,8 @@ export class CanvasToolbarComponent implements OnInit {
     return this._canvasStateService.drawingMode$.value === DrawingMode.RECTANGLE;
   }
 
-  get isCircleMode(): boolean {
-    return this._canvasStateService.drawingMode$.value === DrawingMode.CIRCLE;
+  get isEllipseMode(): boolean {
+    return this._canvasStateService.drawingMode$.value === DrawingMode.ELLIPSE;
   }
 
   get isEditMode(): boolean {
@@ -50,8 +50,8 @@ export class CanvasToolbarComponent implements OnInit {
     this._canvasStateService.drawingMode$.next(DrawingMode.RECTANGLE);
   }
 
-  public enableCircleMode(): void {
-    this._canvasStateService.drawingMode$.next(DrawingMode.CIRCLE);
+  public enableEllipseMode(): void {
+    this._canvasStateService.drawingMode$.next(DrawingMode.ELLIPSE);
   }
 
   public enableEditMode(): void {

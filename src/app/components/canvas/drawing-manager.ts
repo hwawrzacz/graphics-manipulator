@@ -3,6 +3,7 @@ import { CanvasPoint } from 'src/app/model/canvas-point';
 import { CanvasRectangle } from 'src/app/model/canvas-rectangle';
 import { CanvasSnapshot } from 'src/app/model/canvas-snapshot';
 import { CanvasStorage } from 'src/app/model/canvas-storage';
+import { CanvasEllipse } from 'src/app/model/ellipse';
 import { Point } from 'src/app/model/point';
 import { CanvasStateService } from 'src/app/services/canvas-state.service';
 
@@ -87,8 +88,7 @@ export class DrawingManager {
   }
   //#endregion
 
-  //#region Square
-
+  //#region Rectangle
   public drawRectangle(p1: Point, p2: Point): void {
     this.strokeColor = this.strokeColor;
     this.strokeWidth = this.strokeWidth;
@@ -97,10 +97,6 @@ export class DrawingManager {
     this._canvasStorage.addRectangle(rectangle);
   }
 
-  /** Clears canvas preview and draws a preview of new line - the one passed as an argument.
-   * 
-   * @param line the line that should be drawn
-   */
   public drawRectanglePreview(p1: Point, p2: Point): void {
     this.clearCanvasPreview();
 
@@ -108,10 +104,28 @@ export class DrawingManager {
     this.strokeWidth = this.strokeWidth;
     this._contextPreview.beginPath();
     const rectangle = this.createRectangle(p1, p2);
-    const width = rectangle.p1.x - rectangle.p2.x;
-    const height = rectangle.p1.y - rectangle.p2.y;
-    this._contextPreview.rect(rectangle.p2.x, rectangle.p2.y, width, height);
-    this._contextPreview.stroke();
+    this._contextPreview.stroke(rectangle.path!);
+    this._contextPreview.closePath();
+  }
+  //#endregion
+
+  //#region Ellipse
+  public drawEllipse(p1: Point, p2: Point): void {
+    this.strokeColor = this.strokeColor;
+    this.strokeWidth = this.strokeWidth;
+    const ellipse = this.createEllipse(p1, p2);
+    this._context.stroke(ellipse.path!);
+    this._canvasStorage.addEllipse(ellipse);
+  }
+
+  public drawEllipsePreview(p1: Point, p2: Point): void {
+    this.clearCanvasPreview();
+
+    this.strokeColor = this.strokeColor;
+    this.strokeWidth = this.strokeWidth;
+    this._contextPreview.beginPath();
+    const ellipse = this.createEllipse(p1, p2);
+    this._contextPreview.stroke(ellipse.path!);
     this._contextPreview.closePath();
   }
   //#endregion
@@ -241,6 +255,7 @@ export class DrawingManager {
   public redrawFromSnapshot(snapshot: CanvasSnapshot): void {
     snapshot.straightLines.forEach(line => this.drawStraightLine(line.p1, line.p2));
     snapshot.rectangles.forEach(rect => this.drawRectangle(rect.p1, rect.p2));
+    snapshot.ellipses.forEach(ellipse => this.drawEllipse(ellipse.p1, ellipse.p2));
     snapshot.curvedLines.forEach(line => this.drawSubline(line.p1, line.p2));
     snapshot.points.forEach(point => this.drawPoint(point));
   }
@@ -267,6 +282,34 @@ export class DrawingManager {
 
   // TODO: Create classes for below interfaces
   //#region Future classes
+  // CanvasLine
+  private canvasLine(p1: Point, p2: Point): CanvasLine {
+    const line = {
+      p1: p1,
+      p2: p2,
+      color: this.strokeColor,
+      width: this.strokeWidth
+    } as CanvasLine;
+    line.path = this.createLinePath(line);
+
+    return line;
+  }
+
+  /** Returns the path made out of the line. If the passed line already has a path, then this existing path is being returned */
+  private createLinePath(line: CanvasLine): Path2D {
+    if (!line.path) {
+      const path = new Path2D();
+      path.moveTo(line.p1.x, line.p1.y);
+      path.lineTo(line.p2.x, line.p2.y);
+      path.closePath();
+
+      return path;
+    }
+    else {
+      return line.path;
+    }
+  }
+
   // CanvasRectangle
   private createRectangle(p1: Point, p2: Point): CanvasRectangle {
     const rect = {
@@ -297,30 +340,31 @@ export class DrawingManager {
   }
 
   // CanvasLine
-  private canvasLine(p1: Point, p2: Point): CanvasLine {
-    const line = {
+  private createEllipse(p1: Point, p2: Point): CanvasEllipse {
+    const ellipse = {
       p1: p1,
       p2: p2,
       color: this.strokeColor,
-      width: this.strokeWidth
-    } as CanvasLine;
-    line.path = this.createLinePath(line);
+      strokeWidth: this.strokeWidth
+    } as CanvasEllipse;
+    ellipse.path = this.createEllipsePath(ellipse);
 
-    return line;
+    return ellipse;
   }
 
   /** Returns the path made out of the line. If the passed line already has a path, then this existing path is being returned */
-  private createLinePath(line: CanvasLine): Path2D {
-    if (!line.path) {
+  private createEllipsePath(ellipse: CanvasEllipse): Path2D {
+    if (!ellipse.path) {
       const path = new Path2D();
-      path.moveTo(line.p1.x, line.p1.y);
-      path.lineTo(line.p2.x, line.p2.y);
+      const width = Math.abs(ellipse.p1.x - ellipse.p2.x);
+      const height = Math.abs(ellipse.p1.y - ellipse.p2.y);
+      path.ellipse(ellipse.p1.x, ellipse.p1.y, width, height, 0, 0, 2 * Math.PI);
       path.closePath();
 
       return path;
     }
     else {
-      return line.path;
+      return ellipse.path;
     }
   }
   //#endregion

@@ -2,11 +2,13 @@ import { CanvasLine } from './canvas-line';
 import { CanvasPoint } from './canvas-point';
 import { CanvasRectangle } from './canvas-rectangle';
 import { CanvasSnapshot } from './canvas-snapshot';
+import { CanvasEllipse } from './ellipse';
 
 export class CanvasStorage {
   private _straightLines: CanvasLine[] = [];
   private _curvedLines: CanvasLine[] = [];
   private _rectangles: CanvasRectangle[] = [];
+  private _ellipses: CanvasEllipse[] = [];
   private _points: CanvasPoint[] = [];
 
   //#region Getters and setters
@@ -30,13 +32,23 @@ export class CanvasStorage {
   }
   //#endregion
 
-  //#region Rectangles lines
+  //#region Rectangles
   public addRectangle(rectangle: CanvasLine): void {
     this._rectangles.push(rectangle);
   }
 
-  public removerectangle(rectangleToDelete: CanvasLine): void {
-    this._rectangles = this._rectangles.filter(rect => !this.areLinesIdentical(rect, rectangleToDelete));
+  public removeRectangle(rectangleToDelete: CanvasLine): void {
+    this._rectangles = this._rectangles.filter(rect => !this.areRectanglesIdentical(rect, rectangleToDelete));
+  }
+  //#endregion
+
+  //#region Ellipses
+  public addEllipse(ellipse: CanvasEllipse): void {
+    this._ellipses.push(ellipse);
+  }
+
+  public removeEllipse(ellipseToDelete: CanvasEllipse): void {
+    this._ellipses = this._ellipses.filter(ellipse => !this.areEllipsesIdentical(ellipse, ellipseToDelete));
   }
   //#endregion
 
@@ -70,16 +82,18 @@ export class CanvasStorage {
       curvedLines: this._curvedLines,
       straightLines: this._straightLines,
       rectangles: this._rectangles,
+      ellipses: this._ellipses,
     } as CanvasSnapshot;
 
     return snapshot;
   }
 
   public clearStorage(): void {
+    this._points = [];
+    this._curvedLines = [];
     this._straightLines = [];
     this._rectangles = [];
-    this._curvedLines = [];
-    this._points = [];
+    this._ellipses = [];
   }
   //#endregion
 
@@ -92,6 +106,28 @@ export class CanvasStorage {
       l1.p1.y === l2.p1.y &&
       l1.p2.x === l2.p2.x &&
       l1.p2.y === l2.p2.y
+    );
+  }
+
+  public areRectanglesIdentical(r1: CanvasRectangle, r2: CanvasRectangle): boolean {
+    return (
+      r1.color === r2.color &&
+      r1.width === r2.width &&
+      r1.p1.x === r2.p1.x &&
+      r1.p1.y === r2.p1.y &&
+      r1.p2.x === r2.p2.x &&
+      r1.p2.y === r2.p2.y
+    );
+  }
+
+  public areEllipsesIdentical(el1: CanvasEllipse, el2: CanvasEllipse): boolean {
+    return (
+      el1.color === el2.color &&
+      el1.strokeWidth === el2.strokeWidth &&
+      el1.p1.x === el2.p1.x &&
+      el1.p1.y === el2.p1.y &&
+      el1.p2.x === el2.p2.x &&
+      el1.p2.y === el2.p2.y
     );
   }
   //#endregion
