@@ -1,15 +1,21 @@
 import { CanvasLine } from './canvas-line';
 import { CanvasPoint } from './canvas-point';
+import { CanvasRectangle } from './canvas-rectangle';
 import { CanvasSnapshot } from './canvas-snapshot';
 
 export class CanvasStorage {
   private _straightLines: CanvasLine[] = [];
   private _curvedLines: CanvasLine[] = [];
+  private _rectangles: CanvasRectangle[] = [];
   private _points: CanvasPoint[] = [];
 
   //#region Getters and setters
   get straightLines(): CanvasLine[] {
     return this._straightLines;
+  }
+
+  get rectangles(): CanvasRectangle[] {
+    return this._rectangles;
   }
   //#endregion
   constructor() { }
@@ -21,6 +27,16 @@ export class CanvasStorage {
 
   public removeStraightLine(lineToDelete: CanvasLine): void {
     this._straightLines = this._straightLines.filter(line => !this.areLinesIdentical(line, lineToDelete));
+  }
+  //#endregion
+
+  //#region Rectangles lines
+  public addRectangle(rectangle: CanvasLine): void {
+    this._rectangles.push(rectangle);
+  }
+
+  public removerectangle(rectangleToDelete: CanvasLine): void {
+    this._rectangles = this._rectangles.filter(rect => !this.areLinesIdentical(rect, rectangleToDelete));
   }
   //#endregion
 
@@ -42,6 +58,7 @@ export class CanvasStorage {
       points: this._points,
       curvedLines: this._curvedLines,
       straightLines: this._straightLines,
+      rectangles: this._rectangles,
     } as CanvasSnapshot;
 
     console.log(snapshot);
@@ -52,6 +69,7 @@ export class CanvasStorage {
       points: this._points,
       curvedLines: this._curvedLines,
       straightLines: this._straightLines,
+      rectangles: this._rectangles,
     } as CanvasSnapshot;
 
     return snapshot;
@@ -59,6 +77,7 @@ export class CanvasStorage {
 
   public clearStorage(): void {
     this._straightLines = [];
+    this._rectangles = [];
     this._curvedLines = [];
     this._points = [];
   }
