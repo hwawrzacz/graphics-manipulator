@@ -124,7 +124,7 @@ export class CanvasComponent implements AfterViewInit {
         tap(() => {
           this._drawingManager!.clearCanvasPreview();
           this._drawingManager!.clearCanvas(true);
-          this.clearPreviousPoint()
+          this.clearPreviousPoint();
         })
       ).subscribe();
   }
@@ -246,8 +246,7 @@ export class CanvasComponent implements AfterViewInit {
     const newPoint = { x: event.offsetX, y: event.offsetY };
 
     if (event.shiftKey) {
-      const line = this.canvasLineFromPreviousPoint(newPoint);
-      this._drawingManager!.drawSubline(line);
+      this._drawingManager!.drawSubline(this._prevPoint!, newPoint);
     }
   }
 
@@ -256,9 +255,8 @@ export class CanvasComponent implements AfterViewInit {
     if (!this._prevPoint) {
       this.assingPreviousPointFromPoint(newPoint);
     }
-    const line = this.canvasLineFromPreviousPoint(newPoint);
 
-    this._drawingManager!.drawSubline(line);
+    this._drawingManager!.drawSubline(this._prevPoint!, newPoint);
     this.assingPreviousPointFromPoint(newPoint);
   }
   //#endregion
@@ -266,19 +264,17 @@ export class CanvasComponent implements AfterViewInit {
   //#region Straight line
   private onStraightLineMouseUp(event: MouseEvent): void {
     const newPoint = { x: event.offsetX, y: event.offsetY };
-    const line = this.canvasLineFromPreviousPoint(newPoint);
 
-    this._drawingManager!.drawStraightLine(line);
+    this._drawingManager!.drawStraightLine(this._prevPoint!, newPoint);
     this.assingPreviousPointFromPoint(newPoint);
     this._drawingManager!.clearCanvasPreview();
   }
 
   private onDrawStraightLinePreview(event: MouseEvent): void {
     const newPoint = { x: event.offsetX, y: event.offsetY };
-    const line = this.canvasLineFromPreviousPoint(newPoint);
 
     this._drawingManager!.clearCanvasPreview();
-    this._drawingManager!.drawStraightLinePreview(line);
+    this._drawingManager!.drawStraightLinePreview(this._prevPoint!, newPoint);
   }
   //#endregion
 
@@ -320,8 +316,7 @@ export class CanvasComponent implements AfterViewInit {
     } as CanvasPoint;
 
     if (event.shiftKey && this._prevPoint) {
-      const line = this.canvasLineFromPreviousPoint(newPoint);
-      this._drawingManager!.drawSubline(line);
+      this._drawingManager!.drawSubline(this._prevPoint!, newPoint);
     } else {
       this._drawingManager!.drawPoint(newPoint)
     }
@@ -331,18 +326,6 @@ export class CanvasComponent implements AfterViewInit {
   //#endregion
 
   //#region Helpers
-  /** Create line from previously assigned `_prevPoint` to given `newPoint`.
-   * @param newPoint;
-   */
-  private canvasLineFromPreviousPoint(newPoint: Point): CanvasLine {
-    return {
-      p1: newPoint,
-      p2: this._prevPoint,
-      color: this.strokeColor,
-      width: this.strokeSize
-    } as CanvasLine;
-  }
-
   private clearPreviousPoint() {
     this._prevPoint = undefined;
   }

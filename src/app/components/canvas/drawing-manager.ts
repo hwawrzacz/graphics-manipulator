@@ -23,6 +23,14 @@ export class DrawingManager {
     this._context!.lineWidth = strokeSize;
     this._contextPreview!.lineWidth = strokeSize;
   }
+
+  get strokeColor(): string {
+    return this._context!.strokeStyle as string;
+  }
+
+  get strokeWidth(): number {
+    return this._context!.lineWidth
+  }
   //#endregion
 
   constructor(
@@ -30,6 +38,8 @@ export class DrawingManager {
     private _contextPreview: CanvasRenderingContext2D,
   ) {
     this._canvasStorage = new CanvasStorage();
+    this.strokeColor = '#373737';
+    this.strokeWidth = 2;
   }
 
   //#region Point
@@ -42,21 +52,21 @@ export class DrawingManager {
   //#endregion
 
   //#region Common line
-  public drawSubline(line: CanvasLine): void {
-    this.strokeColor = line.color;
-    this.strokeWidth = line.width;
-    line.path = this.createLinePath(line);
-    this._context.stroke(line.path);
+  public drawSubline(p1: Point, p2: Point): void {
+    this.strokeColor = this.strokeColor;
+    this.strokeWidth = this.strokeWidth;
+    const line = this.canvasLine(p1, p2);
+    this._context.stroke(line.path!);
     this._canvasStorage.addCurvedLine(line);
   }
   //#endregion
 
   //#region Straght line
-  public drawStraightLine(line: CanvasLine): void {
-    this.strokeColor = line.color;
-    this.strokeWidth = line.width;
-    line.path = this.createLinePath(line);
-    this._context.stroke(line.path);
+  public drawStraightLine(p1: Point, p2: Point): void {
+    this.strokeColor = this.strokeColor;
+    this.strokeWidth = this.strokeWidth;
+    const line = this.canvasLine(p1, p2);
+    this._context.stroke(line.path!);
     this._canvasStorage.addStraightLine(line);
   }
 
@@ -64,14 +74,14 @@ export class DrawingManager {
    * 
    * @param line the line that should be drawn
    */
-  public drawStraightLinePreview(line: CanvasLine): void {
+  public drawStraightLinePreview(p1: Point, p2: Point): void {
     this.clearCanvasPreview();
 
-    this.strokeColor = line.color;
-    this.strokeWidth = line.width;
+    this.strokeColor = this.strokeColor;
+    this.strokeWidth = this.strokeWidth;
     this._contextPreview.beginPath();
-    this._contextPreview.moveTo(line.p1.x, line.p1.y);
-    this._contextPreview.lineTo(line.p2.x, line.p2.y);
+    this._contextPreview.moveTo(p1.x, p1.y);
+    this._contextPreview.lineTo(p2.x, p2.y);
     this._contextPreview.stroke();
     this._contextPreview.closePath();
   }
@@ -229,9 +239,9 @@ export class DrawingManager {
   }
 
   public redrawFromSnapshot(snapshot: CanvasSnapshot): void {
-    snapshot.straightLines.forEach(line => this.drawStraightLine(line));
+    snapshot.straightLines.forEach(line => this.drawStraightLine(line.p1, line.p2));
     snapshot.rectangles.forEach(rect => this.drawRectangle(rect.p1, rect.p2));
-    snapshot.curvedLines.forEach(line => this.drawSubline(line));
+    snapshot.curvedLines.forEach(line => this.drawSubline(line.p1, line.p2));
     snapshot.points.forEach(point => this.drawPoint(point));
   }
 
@@ -251,39 +261,14 @@ export class DrawingManager {
 
   //#region Misc  
   public getLineByPoint(point: Point): CanvasLine | undefined {
+    console.log(this._canvasStorage.straightLines);
     return this._canvasStorage.straightLines.find(line => !!line.path && this._context.isPointInStroke(line.path!, point.x, point.y));
   }
+  //#endregion
 
-  /** Returns the path made out of the line. If the passed line already has a path, then this path is being returned */
-  private createLinePath(line: CanvasLine): Path2D {
-    if (!line.path) {
-      const path = new Path2D()
-      path.moveTo(line.p1.x, line.p1.y);
-      path.lineTo(line.p2.x, line.p2.y);
-      path.closePath()
-
-      return path;
-    }
-    else {
-      return line.path;
-    }
-  }
-
-  private createRectanglePath(rectangle: CanvasRectangle): Path2D {
-    if (!rectangle.path) {
-      const path = new Path2D();
-      const width = rectangle.p1.x - rectangle.p2.x;
-      const height = rectangle.p1.y - rectangle.p2.y;
-      path.rect(rectangle.p2.x, rectangle.p2.y, width, height);
-      path.closePath()
-
-      return path;
-    }
-    else {
-      return rectangle.path;
-    }
-  }
-
+  // TODO: Create classes for below interfaces
+  //#region Future classes
+  // CanvasRectangle
   private createRectangle(p1: Point, p2: Point): CanvasRectangle {
     const rect = {
       p1: p1,
@@ -294,6 +279,50 @@ export class DrawingManager {
     rect.path = this.createRectanglePath(rect);
 
     return rect;
+  }
+
+  /** Returns the path made out of the rectangle. If the passed rectangle already has a path, then this existing path is being returned */
+  private createRectanglePath(rectangle: CanvasRectangle): Path2D {
+    if (!rectangle.path) {
+      const path = new Path2D();
+      const width = rectangle.p1.x - rectangle.p2.x;
+      const height = rectangle.p1.y - rectangle.p2.y;
+      path.rect(rectangle.p2.x, rectangle.p2.y, width, height);
+      path.closePath();
+
+      return path;
+    }
+    else {
+      return rectangle.path;
+    }
+  }
+
+  // CanvasLine
+  private canvasLine(p1: Point, p2: Point): CanvasLine {
+    const line = {
+      p1: p1,
+      p2: p2,
+      color: this.strokeColor,
+      width: this.strokeWidth
+    } as CanvasLine;
+    line.path = this.createLinePath(line);
+
+    return line;
+  }
+
+  /** Returns the path made out of the line. If the passed line already has a path, then this existing path is being returned */
+  private createLinePath(line: CanvasLine): Path2D {
+    if (!line.path) {
+      const path = new Path2D();
+      path.moveTo(line.p1.x, line.p1.y);
+      path.lineTo(line.p2.x, line.p2.y);
+      path.closePath();
+
+      return path;
+    }
+    else {
+      return line.path;
+    }
   }
   //#endregion
 }
