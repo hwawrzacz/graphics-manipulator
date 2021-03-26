@@ -52,7 +52,7 @@ export class HelpComponent {
       label: 'Rectangle',
       descriptionGeneral: 'This mode allows you to draw a rectangle.',
       descriptionsUsage: [
-        'It works the same as the <strong>Straight line</strong>, except the rectangle is being drawn.',
+        'It works the same as the <strong>Straight line</strong>, except the rectangle is being drawn. You can draw a square by pressing <strong>Shift</strong> key.',
       ]
     },
     {
@@ -60,7 +60,7 @@ export class HelpComponent {
       label: 'Ellipse',
       descriptionGeneral: 'This mode allows you to draw a ellipse.',
       descriptionsUsage: [
-        'It works the same as the <strong>Rectangle</strong>, except the ellipse is being drawn.',
+        'It works the same as the <strong>Rectangle</strong>, except the ellipse is being drawn. You can draw a circle by pressing <strong>Shift</strong> key.',
         `Additionaly, in the settings, you can change the way ellipse is being drawn. Two options are:
         <ul>
           <li>Center of the ellipse will be determined by the starting point - the one which starts drawing. That means the ellipse will be set fixed, and only its radius will change.</li>
