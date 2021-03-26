@@ -85,23 +85,19 @@ export class CanvasComponent implements AfterViewInit {
   private switchMode(mode: DrawingMode): void {
     switch (mode) {
       case DrawingMode.DRAWING:
-        this.initializeDrawingListener();
+        this.initializeCurvedLineHandler();
         break;
 
       case DrawingMode.STRAIGHT_LINE:
-        this.initializeStraightLineListener();
-        break;
-
-      case DrawingMode.EDIT:
-        this.initializeEditListeners();
+        this.initializeStraightLineHandler();
         break;
 
       case DrawingMode.RECTANGLE:
-        this.initializeRectangleListener();
+        this.initializeRectangleHandler();
         break;
 
       case DrawingMode.ELLIPSE:
-        this.initializeEllipseListener();
+        this.initializeEllipseHandler();
         break;
 
       default:
@@ -123,9 +119,9 @@ export class CanvasComponent implements AfterViewInit {
   }
   //#endregion
 
-  //#region Mouse listeners
+  //#region Drawing handlers
   // Curved line
-  private initializeDrawingListener() {
+  private initializeCurvedLineHandler() {
     fromEvent<MouseEvent>(this._canvas?.nativeElement!, 'mousedown')
       .pipe(
         tap(e => this.onDrawPoint(e)),
@@ -143,43 +139,31 @@ export class CanvasComponent implements AfterViewInit {
   }
 
   // Straight line
-  private initializeStraightLineListener(): void {
-    fromEvent<MouseEvent>(this._canvas?.nativeElement!, 'mousedown')
-      .pipe(
-        tap(e => this.assingPreviousPointFromEvent(e)),
-        switchMap(() => fromEvent<MouseEvent>(this._canvas?.nativeElement!, 'mousemove')
-          .pipe(
-            takeUntil(fromEvent<MouseEvent>(this._canvas?.nativeElement!, 'mouseup')
-              .pipe(
-                tap(e => this.onStraightLineMouseUp(e)),
-              )))
-        ),
-        tap(e => this.onDrawStraightLinePreview(e)),
-        takeUntil(this._drawingModeChange$)
-      )
-      .subscribe();
+  private initializeStraightLineHandler(): void {
+    const drawStraightLine = (p1: Point, p2: Point) => this._drawingManager!.drawStraightLine(p1, p2);
+    const drawStraightLinePreview = (p1: Point, p2: Point) => this._drawingManager!.drawStraightLinePreview(p1, p2);
+    this.initialize2PointsBasedElementHandler(drawStraightLine, drawStraightLinePreview);
   }
 
   // Rectangle
-  private initializeRectangleListener(): void {
-    fromEvent<MouseEvent>(this._canvas?.nativeElement!, 'mousedown')
-      .pipe(
-        tap(e => this.assingPreviousPointFromEvent(e)),
-        switchMap(() => fromEvent<MouseEvent>(this._canvas?.nativeElement!, 'mousemove')
-          .pipe(
-            takeUntil(fromEvent<MouseEvent>(this._canvas?.nativeElement!, 'mouseup')
-              .pipe(
-                tap(e => this.onRectangleMouseUp(e)),
-              )))
-        ),
-        tap(e => this.onDrawRectanglePreview(e)),
-        takeUntil(this._drawingModeChange$)
-      )
-      .subscribe();
+  private initializeRectangleHandler(): void {
+    const drawRectangle = (p1: Point, p2: Point) => this._drawingManager!.drawRectangle(p1, p2);
+    const drawRectanglePreview = (p1: Point, p2: Point) => this._drawingManager!.drawRectanglePreview(p1, p2);
+    this.initialize2PointsBasedElementHandler(drawRectangle, drawRectanglePreview);
   }
 
-  // Rectangle
-  private initializeEllipseListener(): void {
+  // Ellipse
+  private initializeEllipseHandler(): void {
+    const drawEllipse = (p1: Point, p2: Point) => this._drawingManager!.drawEllipse(p1, p2);
+    const drawEllipsePreview = (p1: Point, p2: Point) => this._drawingManager!.drawEllipsePreview(p1, p2);
+    this.initialize2PointsBasedElementHandler(drawEllipse, drawEllipsePreview);
+  }
+
+  // Two point based drawing handler
+  private initialize2PointsBasedElementHandler(
+    drawElement: (p1: Point, p2: Point) => void,
+    drawElementPreview: (p1: Point, p2: Point) => void
+  ): void {
     fromEvent<MouseEvent>(this._canvas?.nativeElement!, 'mousedown')
       .pipe(
         tap(e => this.assingPreviousPointFromEvent(e)),
@@ -187,23 +171,23 @@ export class CanvasComponent implements AfterViewInit {
           .pipe(
             takeUntil(fromEvent<MouseEvent>(this._canvas?.nativeElement!, 'mouseup')
               .pipe(
-                tap(e => this.onEllipseMouseUp(e)),
+                tap(e => this.on2PointElementMouseUp(e, drawElement)),
               )))
         ),
-        tap(e => this.onDrawEllipsePreview(e)),
+        tap(e => this.draw2PointElementPreview(e, drawElementPreview)),
         takeUntil(this._drawingModeChange$)
       )
       .subscribe();
   }
 
   // Edit line
-  private initializeEditListeners(): void {
-    this.initializeHoverPathSelectionListener();
-    this.initializeEditedLineResizeListener();
+  private initializeStraightLineEditionHandlers(): void {
+    this.initializeStraightLineSelectionHandler();
+    this.initializeStraightLineResizeHandler();
   }
 
   // Edit line detection
-  private initializeHoverPathSelectionListener(): void {
+  private initializeStraightLineSelectionHandler(): void {
     fromEvent<MouseEvent>(this._canvas?.nativeElement!, 'mousemove')
       .pipe(
         tap((e: MouseEvent) => {
@@ -219,7 +203,7 @@ export class CanvasComponent implements AfterViewInit {
   }
 
   // Edit line manipulation
-  private initializeEditedLineResizeListener() {
+  private initializeStraightLineResizeHandler() {
     fromEvent<MouseEvent>(this._canvas?.nativeElement!, 'mousedown')
       .pipe(
         filter((e: MouseEvent) => {
@@ -274,48 +258,40 @@ export class CanvasComponent implements AfterViewInit {
 
   //#region Straight line
   private onStraightLineMouseUp(event: MouseEvent): void {
-    const newPoint = { x: event.offsetX, y: event.offsetY };
-
-    this._drawingManager!.drawStraightLine(this._prevPoint!, newPoint);
-    this.assingPreviousPointFromPoint(newPoint);
-    this._drawingManager!.clearCanvasPreview();
+    const callback = (newPoint: Point) => this._drawingManager!.drawStraightLine(this._prevPoint!, newPoint);
+    this.on2PointElementMouseUp(event, callback);
   }
 
   private onDrawStraightLinePreview(event: MouseEvent): void {
-    const newPoint = { x: event.offsetX, y: event.offsetY };
-
-    this._drawingManager!.clearCanvasPreview();
-    this._drawingManager!.drawStraightLinePreview(this._prevPoint!, newPoint);
+    const callback = (newPoint: Point) => this._drawingManager!.drawStraightLinePreview(this._prevPoint!, newPoint);
+    this.draw2PointElementPreview(event, callback);
   }
   //#endregion
 
   //#region Rectangle
   private onRectangleMouseUp(event: MouseEvent): void {
-    const newPoint = { x: event.offsetX, y: event.offsetY };
-    this._drawingManager!.drawRectangle(this._prevPoint!, newPoint);
-    this.assingPreviousPointFromPoint(newPoint);
-    this._drawingManager!.clearCanvasPreview();
+    const callback = (newPoint: Point) => this._drawingManager!.drawRectangle(this._prevPoint!, newPoint);
+    this.on2PointElementMouseUp(event, callback);
   }
 
   private onDrawRectanglePreview(event: MouseEvent): void {
-    const newPoint = { x: event.offsetX, y: event.offsetY };
-    this._drawingManager!.clearCanvasPreview();
-    this._drawingManager!.drawRectanglePreview(this._prevPoint!, newPoint);
+    const callback = (newPoint: Point) => this._drawingManager!.drawRectanglePreview(this._prevPoint!, newPoint);
+    this.draw2PointElementPreview(event, callback);
   }
   //#endregion
 
-  //#region Ellipse
-  private onEllipseMouseUp(event: MouseEvent): void {
+  //#region 2-point element based with preview
+  private on2PointElementMouseUp = (event: MouseEvent, callback: (p1: Point, p2: Point) => void): void => {
     const newPoint = { x: event.offsetX, y: event.offsetY };
-    this._drawingManager!.drawEllipse(this._prevPoint!, newPoint);
+    callback(this._prevPoint!, newPoint);
     this.assingPreviousPointFromPoint(newPoint);
     this._drawingManager!.clearCanvasPreview();
   }
 
-  private onDrawEllipsePreview(event: MouseEvent): void {
+  private draw2PointElementPreview = (event: MouseEvent, callback: (p1: Point, p2: Point) => void): void => {
     const newPoint = { x: event.offsetX, y: event.offsetY };
     this._drawingManager!.clearCanvasPreview();
-    this._drawingManager!.drawEllipsePreview(this._prevPoint!, newPoint);
+    callback(this._prevPoint!, newPoint);
   }
   //#endregion
 
