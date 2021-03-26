@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { CanvasStateService, STROKE_SIZES } from 'src/app/services/canvas-state.service';
 
 @Component({
@@ -7,8 +7,9 @@ import { CanvasStateService, STROKE_SIZES } from 'src/app/services/canvas-state.
   styleUrls: ['./canvas-settings-menu.component.scss']
 })
 export class CanvasSettingsMenuComponent {
-  strokeColor: string;
-  strokeWidth: number;
+  public strokeColor: string;
+  public strokeWidth: number;
+  public startDrawingFromCenter: boolean;
 
   get allStrokeSizes(): number[] {
     return STROKE_SIZES;
@@ -17,6 +18,7 @@ export class CanvasSettingsMenuComponent {
   constructor(private _canvasStateService: CanvasStateService) {
     this.strokeColor = this._canvasStateService.strokeColor$.value;
     this.strokeWidth = this._canvasStateService.strokeWidth$.value;
+    this.startDrawingFromCenter = this._canvasStateService.startDrawingFromCenter$.value;
   }
 
   public changeStrokeColor(color: string): void {
@@ -27,4 +29,7 @@ export class CanvasSettingsMenuComponent {
     this._canvasStateService.strokeWidth$.next(width);
   }
 
+  public changeDrawingFromCenter(event: any): void {
+    this._canvasStateService.startDrawingFromCenter$.next(event.checked);
+  }
 }

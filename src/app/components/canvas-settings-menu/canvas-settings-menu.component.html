@@ -18,4 +18,9 @@
       </mat-option>
     </mat-select>
   </section>
+  <section>
+    <label>Drawing ellipse from center</label>
+    <mat-slide-toggle color="primary" [checked]="startDrawingFromCenter" (change)="changeDrawingFromCenter($event)">
+    </mat-slide-toggle>
+  </section>
 </div>

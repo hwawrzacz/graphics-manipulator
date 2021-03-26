@@ -5,14 +5,16 @@ import { AppComponent } from './app.component';
 import { CanvasComponent } from './components/canvas/canvas.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
-import { MatToolbarModule } from '@angular/material/toolbar'
-import { MatButtonModule } from '@angular/material/button'
-import { MatIconModule } from '@angular/material/icon'
-import { MatTooltipModule } from '@angular/material/tooltip'
-import { MatSnackBarModule } from '@angular/material/snack-bar'
-import { MatMenuModule } from '@angular/material/menu'
-import { MatSelectModule } from '@angular/material/select'
-import { MatDialogModule } from '@angular/material/dialog'
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatSelectModule } from '@angular/material/select';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+
 import { CommonModule } from '@angular/common';
 import { CanvasToolbarComponent } from './components/canvas-toolbar/canvas-toolbar.component';
 import { ToolbarComponent } from './components/toolbar/toolbar.component';
@@ -33,6 +35,7 @@ import { HelpComponent } from './components/help/help.component';
     CommonModule,
     BrowserModule,
     BrowserAnimationsModule,
+
     MatToolbarModule,
     MatButtonModule,
     MatIconModule,
@@ -41,6 +44,7 @@ import { HelpComponent } from './components/help/help.component';
     MatMenuModule,
     MatSelectModule,
     MatDialogModule,
+    MatSlideToggleModule,
 
     ColorPickerModule,
   ],
