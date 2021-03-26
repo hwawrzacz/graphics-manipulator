@@ -100,6 +100,10 @@ export class CanvasComponent implements AfterViewInit {
         this.initializeEllipseHandler();
         break;
 
+      case DrawingMode.EDIT:
+        this.initializeStraightLineEditionHandlers();
+        break;
+
       default:
         this.openSnackBar('Selected mode is not supported yet');
     }
