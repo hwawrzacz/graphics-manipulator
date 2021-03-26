@@ -48,6 +48,27 @@ export class HelpComponent {
       ]
     },
     {
+      icon: 'crop_square',
+      label: 'Rectangle',
+      descriptionGeneral: 'This mode allows you to draw a rectangle.',
+      descriptionsUsage: [
+        'It works the same as the <strong>Straight line</strong>, except the rectangle is being drawn.',
+      ]
+    },
+    {
+      icon: 'panorama_fish_eye',
+      label: 'Ellipse',
+      descriptionGeneral: 'This mode allows you to draw a ellipse.',
+      descriptionsUsage: [
+        'It works the same as the <strong>Rectangle</strong>, except the ellipse is being drawn.',
+        `Additionaly, in the settings, you can change the way ellipse is being drawn. Two options are:
+        <ul>
+          <li>Center of the ellipse will be determined by the starting point - the one which starts drawing. That means the ellipse will be set fixed, and only its radius will change.</li>
+          <li>Center of the ellipse will be calculated based on starting and ending point. It will be in the center between those points. That means the ellipse will move and its radius will also change.</li>
+        </ul>`,
+      ]
+    },
+    {
       icon: 'open_in_full',
       label: 'Edit',
       descriptionGeneral: 'This mode allows you to edit already drawn straight lines.',
@@ -66,7 +87,7 @@ export class HelpComponent {
       icon: 'tune',
       label: 'Settings',
       descriptionGeneral: 'This opens settings menu.',
-      descriptionsUsage: ['In settings you can change the color and the width of the stroke']
+      descriptionsUsage: ['In settings you can change color and width of the stroke, and change the way ellipses are being drawn.']
     }
   ];
 
