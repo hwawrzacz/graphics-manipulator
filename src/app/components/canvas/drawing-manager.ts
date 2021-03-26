@@ -33,6 +33,10 @@ export class DrawingManager {
   get strokeColor(): string {
     return this._canvasStateService.strokeColor$.value;
   };
+
+  get startDrawingFromCenter(): boolean {
+    return this._canvasStateService.startDrawingFromCenter$.value;
+  };
   //#endregion
 
   constructor(
@@ -356,6 +360,10 @@ export class DrawingManager {
   private createEllipsePath(ellipse: CanvasEllipse): Path2D {
     if (!ellipse.path) {
       const path = new Path2D();
+
+      ellipse.p1 = this.startDrawingFromCenter
+        ? ellipse.p1
+        : { x: (ellipse.p1.x + ellipse.p2.x) / 2, y: (ellipse.p1.y + ellipse.p2.y) / 2 } as Point;
       const width = Math.abs(ellipse.p1.x - ellipse.p2.x);
       const height = Math.abs(ellipse.p1.y - ellipse.p2.y);
       path.ellipse(ellipse.p1.x, ellipse.p1.y, width, height, 0, 0, 2 * Math.PI);
