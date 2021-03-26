@@ -142,21 +142,21 @@ export class CanvasComponent implements AfterViewInit {
       .subscribe();
   }
 
-  // Straight line
+  // Straight line handler
   private initializeStraightLineHandler(): void {
     const drawStraightLine = (p1: Point, p2: Point) => this._drawingManager!.drawStraightLine(p1, p2);
     const drawStraightLinePreview = (p1: Point, p2: Point) => this._drawingManager!.drawStraightLinePreview(p1, p2);
     this.initialize2PointsBasedElementHandler(drawStraightLine, drawStraightLinePreview);
   }
 
-  // Rectangle
+  // Rectangle handler
   private initializeRectangleHandler(): void {
     const drawRectangle = (p1: Point, p2: Point) => this._drawingManager!.drawRectangle(p1, p2);
     const drawRectanglePreview = (p1: Point, p2: Point) => this._drawingManager!.drawRectanglePreview(p1, p2);
     this.initialize2PointsBasedElementHandler(drawRectangle, drawRectanglePreview, true);
   }
 
-  // Ellipse
+  // Ellipse handler
   private initializeEllipseHandler(): void {
     const drawEllipse = (p1: Point, p2: Point) => this._drawingManager!.drawEllipse(p1, p2);
     const drawEllipsePreview = (p1: Point, p2: Point) => this._drawingManager!.drawEllipsePreview(p1, p2);
@@ -261,33 +261,10 @@ export class CanvasComponent implements AfterViewInit {
   }
   //#endregion
 
-  //#region Straight line
-  private onStraightLineMouseUp(event: MouseEvent): void {
-    const callback = (newPoint: Point) => this._drawingManager!.drawStraightLine(this._prevPoint!, newPoint);
-    this.on2PointElementMouseUp(event, callback);
-  }
-
-  private onDrawStraightLinePreview(event: MouseEvent): void {
-    const callback = (newPoint: Point) => this._drawingManager!.drawStraightLinePreview(this._prevPoint!, newPoint);
-    this.draw2PointElementPreview(event, callback);
-  }
-  //#endregion
-
-  //#region Rectangle
-  private onRectangleMouseUp(event: MouseEvent): void {
-    const callback = (newPoint: Point) => this._drawingManager!.drawRectangle(this._prevPoint!, newPoint);
-    this.on2PointElementMouseUp(event, callback);
-  }
-
-  private onDrawRectanglePreview(event: MouseEvent): void {
-    const callback = (newPoint: Point) => this._drawingManager!.drawRectanglePreview(this._prevPoint!, newPoint);
-    this.draw2PointElementPreview(event, callback);
-  }
-  //#endregion
-
-  //#region 2-point element based with preview
+  //#region 2-point element with preview
   private on2PointElementMouseUp = (event: MouseEvent, callback: (p1: Point, p2: Point) => void, canBeEvenlySized = false): void => {
     const newPoint = { x: event.offsetX, y: event.offsetY };
+    // Even sizing
     if (event.shiftKey && canBeEvenlySized) {
       const maxDistance = this.getMaxDistance(this._prevPoint!, newPoint);
       newPoint.x = this._prevPoint!.x + maxDistance;
@@ -300,6 +277,7 @@ export class CanvasComponent implements AfterViewInit {
 
   private draw2PointElementPreview = (event: MouseEvent, callback: (p1: Point, p2: Point) => void, canBeEvenlySized = false): void => {
     const newPoint = { x: event.offsetX, y: event.offsetY };
+    // Even sizing
     if (event.shiftKey && canBeEvenlySized) {
       const maxDistance = this.getMaxDistance(this._prevPoint!, newPoint);
       newPoint.x = this._prevPoint!.x + maxDistance;
