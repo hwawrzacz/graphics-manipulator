@@ -12,6 +12,7 @@ export class CanvasStateService {
   public drawingMode$ = new BehaviorSubject<DrawingMode>(DrawingMode.STRAIGHT_LINE);
   public strokeColor$ = new BehaviorSubject('#373737');
   public strokeWidth$ = new BehaviorSubject(2);
+  public startDrawingFromCenter$ = new BehaviorSubject(false);
 
   // Actions
   public clear$ = new Subject();

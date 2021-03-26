@@ -33,6 +33,10 @@ export class DrawingManager {
   get strokeColor(): string {
     return this._canvasStateService.strokeColor$.value;
   };
+
+  get startDrawingFromCenter(): boolean {
+    return this._canvasStateService.startDrawingFromCenter$.value;
+  };
   //#endregion
 
   constructor(
@@ -50,6 +54,13 @@ export class DrawingManager {
     const startingY = p.y - Math.floor(this.strokeWidth / 2);
     this._context.fillRect(startingX, startingY, this.strokeWidth, this.strokeWidth);
   }
+
+  private redrawPoint(p: CanvasPoint): void {
+    this.strokeColor = p.color;
+    const startingX = p.x - Math.floor(p.width / 2);
+    const startingY = p.y - Math.floor(p.width / 2);
+    this._context.fillRect(startingX, startingY, p.width, p.width);
+  }
   //#endregion
 
   //#region Common line
@@ -60,6 +71,13 @@ export class DrawingManager {
     this._context.stroke(line.path!);
     this._canvasStorage.addCurvedLine(line);
   }
+
+  private redrawSubline(line: CanvasLine): void {
+    this.strokeColor = line.color;
+    this.strokeWidth = line.width;
+    this._context.stroke(line.path!);
+    this._canvasStorage.addCurvedLine(line);
+  }
   //#endregion
 
   //#region Straght line
@@ -67,6 +85,13 @@ export class DrawingManager {
     this.strokeColor = this.strokeColor;
     this.strokeWidth = this.strokeWidth;
     const line = this.canvasLine(p1, p2);
+    this._context.stroke(line.path!);
+    this._canvasStorage.addStraightLine(line);
+  }
+
+  private redrawStraightLine(line: CanvasLine): void {
+    this.strokeColor = line.color;
+    this.strokeWidth = line.width;
     this._context.stroke(line.path!);
     this._canvasStorage.addStraightLine(line);
   }
@@ -97,6 +122,13 @@ export class DrawingManager {
     this._canvasStorage.addRectangle(rectangle);
   }
 
+  private redrawRectangle(rectangle: CanvasRectangle): void {
+    this.strokeColor = rectangle.color;
+    this.strokeWidth = rectangle.strokeWidth;
+    this._context.stroke(rectangle.path!);
+    this._canvasStorage.addRectangle(rectangle);
+  }
+
   public drawRectanglePreview(p1: Point, p2: Point): void {
     this.clearCanvasPreview();
 
@@ -114,6 +146,13 @@ export class DrawingManager {
     this.strokeColor = this.strokeColor;
     this.strokeWidth = this.strokeWidth;
     const ellipse = this.createEllipse(p1, p2);
+    this._context.stroke(ellipse.path!);
+    this._canvasStorage.addEllipse(ellipse);
+  }
+
+  private redrawEllipse(ellipse: CanvasEllipse): void {
+    this.strokeColor = ellipse.color;
+    this.strokeWidth = ellipse.strokeWidth;
     this._context.stroke(ellipse.path!);
     this._canvasStorage.addEllipse(ellipse);
   }
@@ -239,7 +278,7 @@ export class DrawingManager {
   //#region Canvas editors
   public redrawCanvas(): void {
     const snapshot = this._canvasStorage.getSnapshot();
-    this.clearCanvas();
+    this.clearCanvas(true);
     this.redrawFromSnapshot(snapshot);
   }
 
@@ -252,12 +291,12 @@ export class DrawingManager {
     }
   }
 
-  public redrawFromSnapshot(snapshot: CanvasSnapshot): void {
-    snapshot.straightLines.forEach(line => this.drawStraightLine(line.p1, line.p2));
-    snapshot.rectangles.forEach(rect => this.drawRectangle(rect.p1, rect.p2));
-    snapshot.ellipses.forEach(ellipse => this.drawEllipse(ellipse.p1, ellipse.p2));
-    snapshot.curvedLines.forEach(line => this.drawSubline(line.p1, line.p2));
-    snapshot.points.forEach(point => this.drawPoint(point));
+  private redrawFromSnapshot(snapshot: CanvasSnapshot): void {
+    snapshot.straightLines.forEach(line => this.redrawStraightLine(line));
+    snapshot.rectangles.forEach(rect => this.redrawRectangle(rect));
+    snapshot.ellipses.forEach(ellipse => this.redrawEllipse(ellipse));
+    snapshot.curvedLines.forEach(line => this.redrawSubline(line));
+    snapshot.points.forEach(point => this.redrawPoint(point));
   }
 
   public clearCanvasPreview(): void {
@@ -316,7 +355,8 @@ export class DrawingManager {
       p1: p1,
       p2: p2,
       color: this.strokeColor,
-      width: this.strokeWidth
+      strokeWidth: this.strokeWidth,
+      isDrawnFromCenter: this.startDrawingFromCenter
     } as CanvasRectangle;
     rect.path = this.createRectanglePath(rect);
 
@@ -345,7 +385,8 @@ export class DrawingManager {
       p1: p1,
       p2: p2,
       color: this.strokeColor,
-      strokeWidth: this.strokeWidth
+      strokeWidth: this.strokeWidth,
+      isDrawnFromCenter: this.startDrawingFromCenter
     } as CanvasEllipse;
     ellipse.path = this.createEllipsePath(ellipse);
 
@@ -356,6 +397,10 @@ export class DrawingManager {
   private createEllipsePath(ellipse: CanvasEllipse): Path2D {
     if (!ellipse.path) {
       const path = new Path2D();
+
+      ellipse.p1 = ellipse.isDrawnFromCenter
+        ? ellipse.p1
+        : { x: (ellipse.p1.x + ellipse.p2.x) / 2, y: (ellipse.p1.y + ellipse.p2.y) / 2 } as Point;
       const width = Math.abs(ellipse.p1.x - ellipse.p2.x);
       const height = Math.abs(ellipse.p1.y - ellipse.p2.y);
       path.ellipse(ellipse.p1.x, ellipse.p1.y, width, height, 0, 0, 2 * Math.PI);
