@@ -5,5 +5,6 @@ export interface CanvasEllipse {
   p2: Point;
   strokeWidth: number;
   color: string;
+  isDrawnFromCenter?: boolean;
   path?: Path2D;
 }

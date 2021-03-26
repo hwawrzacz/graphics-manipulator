@@ -33,11 +33,11 @@ export class CanvasStorage {
   //#endregion
 
   //#region Rectangles
-  public addRectangle(rectangle: CanvasLine): void {
+  public addRectangle(rectangle: CanvasRectangle): void {
     this._rectangles.push(rectangle);
   }
 
-  public removeRectangle(rectangleToDelete: CanvasLine): void {
+  public removeRectangle(rectangleToDelete: CanvasRectangle): void {
     this._rectangles = this._rectangles.filter(rect => !this.areRectanglesIdentical(rect, rectangleToDelete));
   }
   //#endregion
@@ -112,7 +112,7 @@ export class CanvasStorage {
   public areRectanglesIdentical(r1: CanvasRectangle, r2: CanvasRectangle): boolean {
     return (
       r1.color === r2.color &&
-      r1.width === r2.width &&
+      r1.strokeWidth === r2.strokeWidth &&
       r1.p1.x === r2.p1.x &&
       r1.p1.y === r2.p1.y &&
       r1.p2.x === r2.p2.x &&

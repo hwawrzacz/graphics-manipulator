@@ -320,7 +320,8 @@ export class DrawingManager {
       p1: p1,
       p2: p2,
       color: this.strokeColor,
-      width: this.strokeWidth
+      strokeWidth: this.strokeWidth,
+      isDrawnFromCenter: this.startDrawingFromCenter
     } as CanvasRectangle;
     rect.path = this.createRectanglePath(rect);
 
@@ -349,7 +350,8 @@ export class DrawingManager {
       p1: p1,
       p2: p2,
       color: this.strokeColor,
-      strokeWidth: this.strokeWidth
+      strokeWidth: this.strokeWidth,
+      isDrawnFromCenter: this.startDrawingFromCenter
     } as CanvasEllipse;
     ellipse.path = this.createEllipsePath(ellipse);
 
