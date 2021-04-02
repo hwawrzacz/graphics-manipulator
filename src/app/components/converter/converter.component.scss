@@ -1,0 +1,29 @@
+@use '../../../variables' as *;
+
+.color-prefix {
+  opacity: 0.7;
+  margin-right: $spacing-medium;
+}
+
+mat-form-field {
+  max-width: 120px;
+  border-top: 0;
+  margin: $spacing-small;
+  
+  &:first-child {
+    margin-left: 0;
+  }
+
+  &:last-child {
+    margin-right: 0;
+  }
+}
+
+.mat-form-field-outline {
+  display: flex;
+  align-items: center;
+}
+
+.mat-form-field-infix {
+  border-top: 0;
+}

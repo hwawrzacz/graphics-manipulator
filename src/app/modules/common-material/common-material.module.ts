@@ -13,6 +13,7 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatListModule } from '@angular/material/list';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 
 
 @NgModule({
@@ -30,7 +31,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
     MatSidenavModule,
     MatListModule,
     ReactiveFormsModule,
-    MatFormFieldModule
+    MatFormFieldModule,
+    MatInputModule,
   ],
   exports: [
     MatToolbarModule,
@@ -45,7 +47,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
     MatSidenavModule,
     MatListModule,
     ReactiveFormsModule,
-    MatFormFieldModule
+    MatFormFieldModule,
+    MatInputModule
   ]
 })
 export class CommonMaterialModule { }

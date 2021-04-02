@@ -1,1 +1,35 @@
-<p>converter works!</p>
+<div class="container">
+  <!-- RGB form -->
+  <label for="rgbForm">RGB scheme</label>
+  <form id="rgbForm" [formGroup]="rgbForm">
+    <mat-form-field appearance="outline">
+      <span matPrefix class='color-prefix'>R</span>
+      <input matInput type="number" formControlName="r">
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <span matPrefix class='color-prefix'>G</span>
+      <input matInput type="number" formControlName="g">
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <span matPrefix class='color-prefix'>B</span>
+      <input matInput type="number" formControlName="b">
+    </mat-form-field>
+  </form>
+
+  <!-- RGB form -->
+  <label for="hsvForm">HSV scheme</label>
+  <form id="hsvForm" [formGroup]="hsvForm">
+    <mat-form-field appearance="outline">
+      <span matPrefix class='color-prefix'>H</span>
+      <input matInput type="number" formControlName="h">
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <span matPrefix class='color-prefix'>S</span>
+      <input matInput type="number" formControlName="s">
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <span matPrefix class='color-prefix'>V</span>
+      <input matInput type="number" formControlName="v">
+    </mat-form-field>
+  </form>
+</div>

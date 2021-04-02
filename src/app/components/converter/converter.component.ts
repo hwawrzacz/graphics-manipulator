@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ColorMode } from 'ngx-color-picker/lib/helpers';
+import { filter, tap } from 'rxjs/operators';
 
 interface RgbModel {
   r: number;
@@ -23,29 +24,65 @@ export class ConverterComponent implements OnInit {
   private readonly RGB_MIN = 0;
   private readonly RGB_MAX = 255;
 
-  private _rgbForm?: FormGroup;
-  private _hsvForm?: FormGroup;
+  private _rgbForm: FormGroup = {} as FormGroup;
+  private _hsvForm: FormGroup = {} as FormGroup;
+
+  get rgbForm(): FormGroup {
+    return this._rgbForm;
+  }
+
+  get hsvForm(): FormGroup {
+    return this._hsvForm;
+  }
 
   constructor(private _formBuilder: FormBuilder) { }
 
   ngOnInit(): void {
     this.buildForms();
-    const hsv = this.convertRgbToHsv({ r: 100, g: 150, b: 200 });
-    console.log(hsv);
+    this.watchFormControlChanges();
   }
+
+  //#region Initialization
 
   private buildForms(): void {
     this._rgbForm = this._formBuilder.group({
-      r: [null, [Validators.min(this.RGB_MIN), Validators.max(this.RGB_MAX)]],
-      g: [null, [Validators.min(this.RGB_MIN), Validators.max(this.RGB_MAX)]],
-      b: [null, [Validators.min(this.RGB_MIN), Validators.max(this.RGB_MAX)]]
+      r: [0, [Validators.min(this.RGB_MIN), Validators.max(this.RGB_MAX)]],
+      g: [0, [Validators.min(this.RGB_MIN), Validators.max(this.RGB_MAX)]],
+      b: [0, [Validators.min(this.RGB_MIN), Validators.max(this.RGB_MAX)]]
     });
 
     this._hsvForm = this._formBuilder.group({
-      h: [null, [Validators.min(this.RGB_MIN), Validators.max(this.RGB_MAX)]],
-      s: [null, [Validators.min(this.RGB_MIN), Validators.max(this.RGB_MAX)]],
-      v: [null, [Validators.min(this.RGB_MIN), Validators.max(this.RGB_MAX)]]
+      h: [0, [Validators.min(this.RGB_MIN), Validators.max(this.RGB_MAX)]],
+      s: [0, [Validators.min(this.RGB_MIN), Validators.max(this.RGB_MAX)]],
+      v: [0, [Validators.min(this.RGB_MIN), Validators.max(this.RGB_MAX)]]
     })
+  }
+
+  private watchFormControlChanges(): void {
+    Object.keys(this._rgbForm.controls).forEach(name => {
+      const control = this._rgbForm.get(name);
+      console.log(control ? control.value : 'No control');
+      control?.valueChanges.pipe(
+        filter(() => control.valid),
+        tap(() => this.onRgbFormControlChange())
+      ).subscribe()
+    });
+  }
+  //#endregion
+
+  private onRgbFormControlChange(): void {
+    const color: RgbModel = {
+      r: this._rgbForm.get('r')!.value,
+      g: this._rgbForm.get('g')!.value,
+      b: this._rgbForm.get('b')!.value,
+    };
+
+    const hsv = this.convertRgbToHsv(color);
+    this._hsvForm.patchValue({
+      h: hsv.h,
+      s: hsv.s,
+      v: hsv.v,
+    });
   }
 
   private convertRgbToHsv(color: RgbModel): HsvModel {
@@ -60,7 +97,7 @@ export class ConverterComponent implements OnInit {
 
     const h = this.calculateHue(delta, cMax, parsedColor)
     const s = this.calculateSaturation(delta, cMax);
-    const v = this.roundToDecimal(cMax * 100); // Multiply by 100 to get percent
+    const v = this.roundTo2Decimal(cMax * 100); // Multiply by 100 to get percent
 
     return { h: h, s: s, v: v };
   }
@@ -68,24 +105,26 @@ export class ConverterComponent implements OnInit {
   /** Returns hue value in degrees */
   private calculateHue(delta: number, cMax: number, parsedColor: RgbModel): number {
     const { r, g, b } = parsedColor;
+    let result;
 
     if (delta === 0)
-      return 0;
+      result = 0;
+    else if (cMax === r)
+      result = (((g - b) / delta) % 6) * 60;
+    else if (cMax === g)
+      result = (((b - r) / delta) + 2) * 60;
+    else
+      result = (((r - g) / delta) + 4) * 60;
 
-    if (cMax === r)
-      return (((g - b) / delta) % 6) * 60;
-    if (cMax === g)
-      return (((b - r) / delta) + 2) * 60;
-
-    return (((r - g) / delta) + 4) * 60;
+    return this.roundTo2Decimal(result);
   }
 
   /** Returns saturation value in percents */
   private calculateSaturation(delta: number, cMax: number): number {
-    return cMax === 0 ? 0 : delta / cMax * 100; // Multiply by 100 to get percent
+    return cMax === 0 ? 0 : this.roundTo2Decimal((delta / cMax) * 100); // Multiply by 100 to get percent
   }
 
-  private roundToDecimal(num: number): number {
+  private roundTo2Decimal(num: number): number {
     return Math.round((num + Number.EPSILON) * 100) / 100;
   }
 }
