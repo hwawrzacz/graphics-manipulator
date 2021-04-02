@@ -3,6 +3,14 @@
 
   <mat-sidenav-container>
     <mat-sidenav mode="over" [opened]="sidenavExpanded" [fixedInViewport]="true" fixedTopGap="0">
+      <mat-nav-list>
+        <mat-list-item>
+          <a [routerLink]="['/canvas']" routerLinkActive="router-link-active">Canvas</a>
+        </mat-list-item>
+        <mat-list-item>
+          <a [routerLink]="['/converter']" routerLinkActive="router-link-active">Converter</a>
+        </mat-list-item>
+      </mat-nav-list>
     </mat-sidenav>
 
     <mat-sidenav-content>

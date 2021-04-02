@@ -15,6 +15,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatListModule } from '@angular/material/list';
 
 import { CommonModule } from '@angular/common';
 import { CanvasToolbarComponent } from './components/canvas-toolbar/canvas-toolbar.component';
@@ -22,6 +23,7 @@ import { ToolbarComponent } from './components/toolbar/toolbar.component';
 import { CanvasSettingsMenuComponent } from './components/canvas-settings-menu/canvas-settings-menu.component';
 import { ColorPickerModule } from 'ngx-color-picker';
 import { HelpComponent } from './components/help/help.component';
+import { AppRoutingModule } from './routing/app-routing/app-routing.module';
 
 @NgModule({
   declarations: [
@@ -47,8 +49,11 @@ import { HelpComponent } from './components/help/help.component';
     MatDialogModule,
     MatSlideToggleModule,
     MatSidenavModule,
+    MatListModule,
 
     ColorPickerModule,
+
+    AppRoutingModule,
   ],
   entryComponents: [
     HelpComponent,
