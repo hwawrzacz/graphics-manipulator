@@ -55,8 +55,6 @@ import { ConverterModule } from './modules/converter/converter.module';
     ColorPickerModule,
 
     AppRoutingModule,
-
-    ConverterModule,
   ],
   entryComponents: [
     HelpComponent,

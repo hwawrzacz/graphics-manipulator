@@ -10,7 +10,7 @@ const routes: Routes = [
   },
   {
     path: 'converter',
-    component: CanvasComponent
+    loadChildren: () => import('../../modules/converter/converter.module').then(mod => mod.ConverterModule)
   },
   {
     path: '',
