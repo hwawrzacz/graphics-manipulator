@@ -1,7 +1,17 @@
 <div class="app-wrapper">
   <app-toolbar [title]="title"></app-toolbar>
 
-  <main>
-    <app-canvas></app-canvas>
-  </main>
+  <mat-sidenav-container>
+    <mat-sidenav mode="over" [opened]="sidenavExpanded" [fixedInViewport]="true" fixedTopGap="0">
+      <mat-nav-list>
+        <span mat-subheader>Modules</span>
+        <mat-list-item [routerLink]="['/canvas']" routerLinkActive="router-link-active">Canvas</mat-list-item>
+        <mat-list-item [routerLink]="['/converter']" routerLinkActive="router-link-active">Converter</mat-list-item>
+      </mat-nav-list>
+    </mat-sidenav>
+
+    <mat-sidenav-content>
+      <router-outlet></router-outlet>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
 </div>

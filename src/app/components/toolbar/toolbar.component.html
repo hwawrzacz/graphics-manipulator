@@ -1,17 +1,21 @@
 <mat-toolbar color="primary">
   <mat-toolbar-row class="mat-elevation-z4">
-    <button mat-icon-button>
-      <mat-icon> menu </mat-icon>
+    <button mat-icon-button (click)="onToggleSidenav()">
+      <mat-icon>menu</mat-icon>
     </button>
 
     <span>{{ title }}</span>
 
-    <button mat-icon-button (click)="toggleToolbar()">
-      <mat-icon [class.upside-down]="expanded"> expand_more </mat-icon>
-    </button>
+    <!-- Placeholder keeps the place when the icon is hidden, so header layout will stay the same (title won't go to the right) -->
+    <div class="icon-button-placeholder">
+      <button mat-icon-button *ngIf="isCanvasModuleActive">
+        <mat-icon (click)="onToggleToolbar()" [class.upside-down]="toolbarExpanded"> expand_more </mat-icon>
+      </button>
+    </div>
   </mat-toolbar-row>
 
-  <mat-toolbar-row color="default" [ngClass]="{'expanded': expanded}">
+  <!-- Canvas toolbar -->
+  <mat-toolbar-row *ngIf="isCanvasModuleActive" color="default" [ngClass]="{'expanded': toolbarExpanded}">
     <app-canvas-toolbar></app-canvas-toolbar>
   </mat-toolbar-row>
 </mat-toolbar>
