@@ -24,6 +24,7 @@ import { CanvasSettingsMenuComponent } from './components/canvas-settings-menu/c
 import { ColorPickerModule } from 'ngx-color-picker';
 import { HelpComponent } from './components/help/help.component';
 import { AppRoutingModule } from './routing/app-routing/app-routing.module';
+import { ConverterModule } from './modules/converter/converter.module';
 
 @NgModule({
   declarations: [
@@ -54,6 +55,8 @@ import { AppRoutingModule } from './routing/app-routing/app-routing.module';
     ColorPickerModule,
 
     AppRoutingModule,
+
+    ConverterModule,
   ],
   entryComponents: [
     HelpComponent,
