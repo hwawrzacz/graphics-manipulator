@@ -5,8 +5,8 @@ import { BehaviorSubject } from 'rxjs';
   providedIn: 'root'
 })
 export class AppService {
+  public sidenavExpanded$ = new BehaviorSubject(false);
+  public toolbarExpanded$ = new BehaviorSubject(false);
 
   constructor() { }
-
-  public sidenavExpanded$ = new BehaviorSubject(false);
 }

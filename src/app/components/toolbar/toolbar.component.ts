@@ -8,7 +8,6 @@ import { AppService } from 'src/app/services/app.service';
 })
 export class ToolbarComponent implements OnInit {
   private _title = '';
-  private _toolbarExpanded = true;
 
   //#region Getters and setters
   @Input('title')
@@ -20,7 +19,7 @@ export class ToolbarComponent implements OnInit {
   }
 
   get toolbarExpanded(): boolean {
-    return this._toolbarExpanded;
+    return this._appService.toolbarExpanded$.value;
   }
   //#endregion
 
@@ -29,12 +28,23 @@ export class ToolbarComponent implements OnInit {
   ngOnInit(): void {
   }
 
-  public toggleToolbar(): void {
-    this._toolbarExpanded = !this._toolbarExpanded;
+  public onToggleToolbar(): void {
+    this.collapseSidenav();
+    const newValue = !this._appService.toolbarExpanded$.value
+    this._appService.toolbarExpanded$.next(newValue);
   }
 
-  public toggleSidenav(): void {
+  public onToggleSidenav(): void {
+    this.collapseToolbar();
     const newValue = !this._appService.sidenavExpanded$.value
     this._appService.sidenavExpanded$.next(newValue);
+  }
+
+  private collapseToolbar(): void {
+    this._appService.toolbarExpanded$.next(false);
+  }
+
+  private collapseSidenav(): void {
+    this._appService.sidenavExpanded$.next(false);
   }
 }
