@@ -1,4 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
+import { AppService } from 'src/app/services/app.service';
+import { RouterControllerService } from 'src/app/services/router-controller.service';
 
 @Component({
   selector: 'app-toolbar',
@@ -7,7 +9,6 @@ import { Component, Input, OnInit } from '@angular/core';
 })
 export class ToolbarComponent implements OnInit {
   private _title = '';
-  private _expanded = true;
 
   //#region Getters and setters
   @Input('title')
@@ -18,17 +19,37 @@ export class ToolbarComponent implements OnInit {
     return this._title;
   }
 
-  get expanded(): boolean {
-    return this._expanded;
+  get toolbarExpanded(): boolean {
+    return this._appService.toolbarExpanded$.value;
+  }
+
+  get isCanvasModuleActive(): boolean {
+    return this._routerController.isCanvasModuleActive;
   }
   //#endregion
 
-  constructor() { }
+  constructor(private _appService: AppService, private _routerController: RouterControllerService) { }
 
   ngOnInit(): void {
   }
 
-  public toggleToolbar(): void {
-    this._expanded = !this._expanded;
+  public onToggleToolbar(): void {
+    this.collapseSidenav();
+    const newValue = !this._appService.toolbarExpanded$.value
+    this._appService.toolbarExpanded$.next(newValue);
+  }
+
+  public onToggleSidenav(): void {
+    this.collapseToolbar();
+    const newValue = !this._appService.sidenavExpanded$.value
+    this._appService.sidenavExpanded$.next(newValue);
+  }
+
+  private collapseToolbar(): void {
+    this._appService.toolbarExpanded$.next(false);
+  }
+
+  private collapseSidenav(): void {
+    this._appService.sidenavExpanded$.next(false);
   }
 }
