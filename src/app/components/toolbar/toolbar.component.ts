@@ -1,4 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
+import { AppService } from 'src/app/services/app.service';
 
 @Component({
   selector: 'app-toolbar',
@@ -7,7 +8,7 @@ import { Component, Input, OnInit } from '@angular/core';
 })
 export class ToolbarComponent implements OnInit {
   private _title = '';
-  private _expanded = true;
+  private _toolbarExpanded = true;
 
   //#region Getters and setters
   @Input('title')
@@ -18,17 +19,22 @@ export class ToolbarComponent implements OnInit {
     return this._title;
   }
 
-  get expanded(): boolean {
-    return this._expanded;
+  get toolbarExpanded(): boolean {
+    return this._toolbarExpanded;
   }
   //#endregion
 
-  constructor() { }
+  constructor(private _appService: AppService) { }
 
   ngOnInit(): void {
   }
 
   public toggleToolbar(): void {
-    this._expanded = !this._expanded;
+    this._toolbarExpanded = !this._toolbarExpanded;
+  }
+
+  public toggleSidenav(): void {
+    const newValue = !this._appService.sidenavExpanded$.value
+    this._appService.sidenavExpanded$.next(newValue);
   }
 }

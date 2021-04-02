@@ -1,17 +1,17 @@
 <mat-toolbar color="primary">
   <mat-toolbar-row class="mat-elevation-z4">
-    <button mat-icon-button>
+    <button mat-icon-button (click)="toggleSidenav()">
       <mat-icon> menu </mat-icon>
     </button>
 
     <span>{{ title }}</span>
 
     <button mat-icon-button>
-      <mat-icon (click)="toggleToolbar()" [class.upside-down]="expanded"> expand_more </mat-icon>
+      <mat-icon (click)="toggleToolbar()" [class.upside-down]="toolbarExpanded"> expand_more </mat-icon>
     </button>
   </mat-toolbar-row>
 
-  <mat-toolbar-row color="default" [ngClass]="{'expanded': expanded}">
+  <mat-toolbar-row color="default" [ngClass]="{'expanded': toolbarExpanded}">
     <app-canvas-toolbar></app-canvas-toolbar>
   </mat-toolbar-row>
 </mat-toolbar>

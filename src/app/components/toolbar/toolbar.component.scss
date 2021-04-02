@@ -3,10 +3,11 @@
 mat-toolbar {
   mat-toolbar-row {
     transition: $transition-normal;
-
+    
     &:nth-child(1) {
       display: flex;
       justify-content: space-between;
+      height: $toolbar-height;
     }
 
     &:nth-child(2) {

@@ -14,6 +14,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatSelectModule } from '@angular/material/select';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatSidenavModule } from '@angular/material/sidenav';
 
 import { CommonModule } from '@angular/common';
 import { CanvasToolbarComponent } from './components/canvas-toolbar/canvas-toolbar.component';
@@ -45,6 +46,7 @@ import { HelpComponent } from './components/help/help.component';
     MatSelectModule,
     MatDialogModule,
     MatSlideToggleModule,
+    MatSidenavModule,
 
     ColorPickerModule,
   ],

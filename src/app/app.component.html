@@ -1,7 +1,12 @@
 <div class="app-wrapper">
   <app-toolbar [title]="title"></app-toolbar>
 
-  <main>
-    <app-canvas></app-canvas>
-  </main>
+  <mat-sidenav-container>
+    <mat-sidenav mode="over" [opened]="sidenavExpanded" [fixedInViewport]="true" fixedTopGap="0">
+    </mat-sidenav>
+
+    <mat-sidenav-content>
+      <app-canvas></app-canvas>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
 </div>
