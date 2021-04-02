@@ -1,5 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { AppService } from 'src/app/services/app.service';
+import { RouterControllerService } from 'src/app/services/router-controller.service';
 
 @Component({
   selector: 'app-toolbar',
@@ -21,9 +22,13 @@ export class ToolbarComponent implements OnInit {
   get toolbarExpanded(): boolean {
     return this._appService.toolbarExpanded$.value;
   }
+
+  get isCanvasModuleActive(): boolean {
+    return this._routerController.isCanvasModuleActive;
+  }
   //#endregion
 
-  constructor(private _appService: AppService) { }
+  constructor(private _appService: AppService, private _routerController: RouterControllerService) { }
 
   ngOnInit(): void {
   }

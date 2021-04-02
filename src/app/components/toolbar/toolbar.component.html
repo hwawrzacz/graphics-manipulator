@@ -6,12 +6,16 @@
 
     <span>{{ title }}</span>
 
-    <button mat-icon-button>
-      <mat-icon (click)="onToggleToolbar()" [class.upside-down]="toolbarExpanded"> expand_more </mat-icon>
-    </button>
+    <!-- Placeholder keeps the place when the icon is hidden, so header layout will stay the same (title won't go to the right) -->
+    <div class="icon-button-placeholder">
+      <button mat-icon-button *ngIf="isCanvasModuleActive">
+        <mat-icon (click)="onToggleToolbar()" [class.upside-down]="toolbarExpanded"> expand_more </mat-icon>
+      </button>
+    </div>
   </mat-toolbar-row>
 
-  <mat-toolbar-row color="default" [ngClass]="{'expanded': toolbarExpanded}">
+  <!-- Canvas toolbar -->
+  <mat-toolbar-row *ngIf="isCanvasModuleActive" color="default" [ngClass]="{'expanded': toolbarExpanded}">
     <app-canvas-toolbar></app-canvas-toolbar>
   </mat-toolbar-row>
 </mat-toolbar>

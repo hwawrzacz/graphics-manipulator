@@ -34,3 +34,8 @@ mat-icon {
 .upside-down {
   transform: rotate(180deg);
 }
+
+.icon-button-placeholder {
+  width: $icon-button-size;
+  height: $icon-button-size;
+}
