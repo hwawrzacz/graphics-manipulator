@@ -10,7 +10,6 @@ import { CommonMaterialModule } from '../common-material/common-material.module'
     CommonModule,
     CommonMaterialModule,
     ConverterRoutingModule
-  ],
-  bootstrap: [ConverterComponent]
+  ]
 })
 export class ConverterModule { }
