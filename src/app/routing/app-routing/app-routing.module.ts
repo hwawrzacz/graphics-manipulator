@@ -13,6 +13,10 @@ const routes: Routes = [
     loadChildren: () => import('../../modules/converter/converter.module').then(mod => mod.ConverterModule)
   },
   {
+    path: 'image-processing',
+    loadChildren: () => import('../../modules/image-processing/image-processing.module').then(mod => mod.ImageProcessingModule)
+  },
+  {
     path: '',
     redirectTo: 'canvas',
     pathMatch: 'full',
