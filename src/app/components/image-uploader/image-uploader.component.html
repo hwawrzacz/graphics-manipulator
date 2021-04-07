@@ -1,1 +1,6 @@
-<p>file-uploader works!</p>
+<ngx-dropzone (change)="onUpload($event)">
+	<ngx-dropzone-label>Click or drop your files here</ngx-dropzone-label>
+	<ngx-dropzone-image-preview *ngFor="let file of files" [file]="file" (click)="onSelect($event)" [removable]="false">
+		<ngx-dropzone-label>{{ file.name }} ({{ file.type }})</ngx-dropzone-label>
+	</ngx-dropzone-image-preview>
+</ngx-dropzone>
