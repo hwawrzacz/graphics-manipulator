@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Routes } from '@angular/router';
-import { ConverterComponent } from 'src/app/components/converter/converter.component';
+import { ConverterComponent } from 'src/app/modules/converter/converter/converter.component';
 
 const routes: Routes = [
   {

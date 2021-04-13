@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Routes } from '@angular/router';
-import { ImageProcessingComponent } from 'src/app/components/image-processing/image-processing.component';
+import { ImageProcessingComponent } from 'src/app/modules/image-processing/image-processing/image-processing.component';
 
 const routes: Routes = [
   {
