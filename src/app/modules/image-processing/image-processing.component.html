@@ -1,5 +1,5 @@
 <div class="wrapper">
-  <app-image-uploader (fileLoaded)="loadFile($event)"></app-image-uploader>
+  <app-image-uploader (fileSelected)="loadFile($event)"></app-image-uploader>
 
   <div class="canvases-wrapper">
     <canvas #canvasInput id="canvasInput" width="400" height="250"></canvas>
