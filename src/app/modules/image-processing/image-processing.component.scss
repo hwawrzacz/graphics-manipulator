@@ -21,11 +21,9 @@ app-image-uploader {
 .canvases-wrapper {
   margin-top: $spacing-medium;
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   
   canvas {
-    width: 450px;
-    height: 500px;
     border: 2px dashed #717386;
     border-radius: 5px;
   }

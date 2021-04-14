@@ -2,7 +2,8 @@
   <app-image-uploader (fileSelected)="loadFile($event)"></app-image-uploader>
 
   <div class="canvases-wrapper">
-    <canvas #canvasInput id="canvasInput" width="400" height="250"></canvas>
+    <canvas #canvasInput id="canvasInput" [width]="canvasDimensions.width" [height]="canvasDimensions.height"
+      [style.width.px]="canvasDimensions.width" [style.height.px]="canvasDimensions.height"></canvas>
 
     <form class="controls-wrapper" [formGroup]="form">
       <mat-form-field appearance="outline">
@@ -16,6 +17,7 @@
         [disabled]="!form.valid || !isImageLoaded">Process</button>
     </form>
 
-    <canvas #canvasOutput id="canvasOutput" width="400" height="250"></canvas>
+    <canvas #canvasOutput id="canvasOutput" [width]="canvasDimensions.width" [height]="canvasDimensions.height"
+      [style.width.px]="canvasDimensions.width" [style.height.px]="canvasDimensions.height"></canvas>
   </div>
 </div>
