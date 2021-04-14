@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ImageUploaderComponent } from './image-uploader/image-uploader.component';
-import { ImageProcessingComponent } from './image-processing/image-processing.component';
+import { ImageProcessingComponent } from './image-processing.component';
 import { ImageProcessingRoutingModule } from './image-processing-routing/image-processing-routing.module';
 import { NgxDropzoneModule } from 'ngx-dropzone';
 
@@ -10,7 +10,7 @@ import { NgxDropzoneModule } from 'ngx-dropzone';
   imports: [
     CommonModule,
     ImageProcessingRoutingModule,
-    NgxDropzoneModule
+    NgxDropzoneModule,
   ]
 })
 export class ImageProcessingModule { }
