@@ -4,11 +4,13 @@ import { ImageUploaderComponent } from './image-uploader/image-uploader.componen
 import { ImageProcessingComponent } from './image-processing.component';
 import { ImageProcessingRoutingModule } from './image-processing-routing/image-processing-routing.module';
 import { NgxDropzoneModule } from 'ngx-dropzone';
+import { CommonMaterialModule } from '../common-material/common-material.module';
 
 @NgModule({
   declarations: [ImageUploaderComponent, ImageProcessingComponent],
   imports: [
     CommonModule,
+    CommonMaterialModule,
     ImageProcessingRoutingModule,
     NgxDropzoneModule,
   ]

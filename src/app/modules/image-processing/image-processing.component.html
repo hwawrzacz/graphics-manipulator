@@ -3,6 +3,19 @@
 
   <div class="canvases-wrapper">
     <canvas #canvasInput id="canvasInput" width="400" height="250"></canvas>
+
+    <form class="controls-wrapper" [formGroup]="form">
+      <mat-form-field appearance="outline">
+        <mat-label> Filter </mat-label>
+        <mat-select formControlName="filter">
+          <mat-option *ngFor="let filter of filters" [value]="filter.value">{{ filter.label }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <button mat-raised-button color="primary" (click)="applyFilter()"
+        [disabled]="!form.valid || !isImageLoaded">Process</button>
+    </form>
+
     <canvas #canvasOutput id="canvasOutput" width="400" height="250"></canvas>
   </div>
 </div>

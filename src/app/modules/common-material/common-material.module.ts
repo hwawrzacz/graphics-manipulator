@@ -33,6 +33,7 @@ import { MatInputModule } from '@angular/material/input';
     ReactiveFormsModule,
     MatFormFieldModule,
     MatInputModule,
+    MatSelectModule,
   ],
   exports: [
     MatToolbarModule,
@@ -48,7 +49,8 @@ import { MatInputModule } from '@angular/material/input';
     MatListModule,
     ReactiveFormsModule,
     MatFormFieldModule,
-    MatInputModule
+    MatInputModule,
+    MatSelectModule,
   ]
 })
 export class CommonMaterialModule { }

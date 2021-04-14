@@ -24,8 +24,21 @@ app-image-uploader {
   justify-content: space-between;
   
   canvas {
-    width: 500px;
+    width: 450px;
     height: 500px;
     border: 2px dashed #717386;
+    border-radius: 5px;
+  }
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: $spacing-medium;
+  
+  & > * {
+    width: 100%;
   }
 }

@@ -2,9 +2,15 @@ import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { fromEvent } from 'rxjs';
 import { filter, map, switchMap, tap } from 'rxjs/operators';
 import * as cv from '@techstark/opencv-js'
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 
 export enum Filter {
   GRAYSCALE,
+}
+
+export interface PrintableFilter {
+  value: Filter;
+  label: string;
 }
 
 @Component({
@@ -13,15 +19,48 @@ export enum Filter {
   styleUrls: ['./image-processing.component.scss']
 })
 export class ImageProcessingComponent implements OnInit {
+  private readonly availableFilters = [
+    {
+      value: Filter.GRAYSCALE,
+      label: 'Gray scale'
+    },
+  ]
+
+  private _isImageLoaded = false;
+  private _form?: FormGroup;
   @ViewChild('canvasInput') private _canvasInput?: ElementRef<HTMLCanvasElement>;
-  @ViewChild('canvasOutput') private _canvasOutput?: ElementRef<HTMLCanvasElement>;
 
-  constructor() { }
+  //#region Getters and setters
+  get form(): FormGroup {
+    return this._form!;
+  }
 
-  ngOnInit(): void { }
+  get isImageLoaded(): boolean {
+    return this._isImageLoaded;
+  }
+
+  get filters(): PrintableFilter[] {
+    return this.availableFilters;
+  }
+  //#endregion
+
+  constructor(private _formBuilder: FormBuilder) { }
+
+  ngOnInit(): void {
+    this._form = this.buildForm();
+  }
+
+  private buildForm(): FormGroup {
+    return this._formBuilder.group({
+      filter: [Filter.GRAYSCALE, [Validators.required]]
+    })
+  }
 
   public loadFile(file: File): void {
-    console.log(file);
+    this._isImageLoaded = false;
+
+    if (!file) return;
+
     const image = new Image();
     const reader = new FileReader();
 
@@ -32,9 +71,7 @@ export class ImageProcessingComponent implements OnInit {
         image.src = imageUrl;
         return fromEvent(image, 'load');
       }),
-      tap(() => {
-        this.drawImageToCanvas(image);
-      })
+      tap(() => this.drawImageToCanvas(image))
     ).subscribe();
 
     reader.readAsDataURL(file);
@@ -43,20 +80,21 @@ export class ImageProcessingComponent implements OnInit {
   private drawImageToCanvas(image: HTMLImageElement): void {
     const ctx = this._canvasInput?.nativeElement.getContext('2d');
     ctx!.drawImage(image, 0, 0);
+    this._isImageLoaded = true;
   }
 
   public applyFilter(): void {
     const source = cv.imread('canvasInput');
     const destination = new cv.Mat();
     const filter = this.getSelectedFilter();
-    cv.cvtColor(source, destination, cv.COLOR_RGB2GRAY, 0);
+    cv.cvtColor(source, destination, filter, 0);
     cv.imshow('canvasOutput', destination);
-    source.delete(); destination.delete();
+    source.delete();
+    destination.delete();
   }
 
   private getSelectedFilter(): cv.ColorConversionCodes {
-    // const filter = this._filter;
-    const filter = Filter.GRAYSCALE;
+    const filter = this._form!.get('filter')!.value as Filter;
 
     switch (filter) {
       case Filter.GRAYSCALE: return cv.COLOR_RGB2GRAY;
