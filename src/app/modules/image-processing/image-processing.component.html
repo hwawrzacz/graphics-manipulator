@@ -17,6 +17,10 @@
             <mat-label>Blur</mat-label>
             <mat-option *ngFor="let filter of blurFilters" [value]="filter.value">{{ filter.label }}</mat-option>
           </mat-optgroup>
+          <mat-optgroup>
+            <mat-label>Custom</mat-label>
+            <mat-option *ngFor="let filter of customFilters" [value]="filter.value">{{ filter.label }}</mat-option>
+          </mat-optgroup>
         </mat-select>
       </mat-form-field>
 

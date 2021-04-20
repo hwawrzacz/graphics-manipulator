@@ -43,6 +43,17 @@ export class ImageProcessingComponent implements OnInit {
     },
   ];
 
+  private readonly _customFilters = [
+    {
+      value: Filter.CUSTOM_2x2,
+      label: 'Custom 1'
+    },
+    {
+      value: Filter.CUSTOM_3x3,
+      label: 'Custom 2'
+    },
+  ];
+
   private readonly MAX_IMAGE_WIDTH = 450;
   private readonly MAX_IMAGE_HEIGHT = 500;
   private _canvasWidth = 450;
@@ -71,6 +82,10 @@ export class ImageProcessingComponent implements OnInit {
 
   get blurFilters(): FilterPrintable[] {
     return this._blurFiltes;
+  }
+
+  get customFilters(): FilterPrintable[] {
+    return this._customFilters;
   }
   //#endregion
 

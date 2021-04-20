@@ -19,10 +19,13 @@ export class ImageProcessor {
     const filterCategory = this.getFilterCategory(filter);
     switch (filterCategory) {
       case FilterCategory.BLUR:
-        this.applyBlurFilter(filter, source, destination)
+        this.applyBlurFilter(filter, source, destination);
         break;
       case FilterCategory.COLOR:
         this.applyColorFilter(filter, source, destination);
+        break;
+      case FilterCategory.CUSTOM:
+        this.applyCustomFilter(filter, source, destination);
         break;
       default:
       // Handle filter error 
@@ -39,12 +42,15 @@ export class ImageProcessor {
       case Filter.LUV:
       case Filter.GRAYSCALE: return FilterCategory.COLOR;
 
+      case Filter.CUSTOM_2x2:
+      case Filter.CUSTOM_3x3: return FilterCategory.CUSTOM
+
       default: return FilterCategory.UNKNOWN;
     }
   }
 
   private applyBlurFilter(filter: Filter, src: cv.Mat, dst: cv.Mat): void {
-    const kernelSize = this.getBlurSize(filter);
+    const kernelSize = this.getBlurKernelSize(filter);
     const anchor = new cv.Point(-1, -1);
     const border = cv.BORDER_DEFAULT;
     cv.blur(src, dst, kernelSize, anchor, border);
@@ -56,7 +62,7 @@ export class ImageProcessor {
    * 
    * @returns cv.Size. If given filter is not blur filter it will return Size(1, 1)
   */
-  private getBlurSize(filter: Filter): cv.Size {
+  private getBlurKernelSize(filter: Filter): cv.Size {
     switch (filter) {
       case Filter.BLUR_3X3: return new cv.Size(3, 3);
       case Filter.BLUR_7X7: return new cv.Size(7, 7);
@@ -72,13 +78,26 @@ export class ImageProcessor {
   }
 
   private applyCustomFilter(filter: Filter, src: cv.Mat, dst: cv.Mat): void {
-    const kernelSize = 3;
+    const kernelSize = this.getCustomKernelSize(filter);
     const kernel = this.createCustomKernel(kernelSize);
     const anchor = new cv.Point(-1, -1);
     const border = cv.BORDER_DEFAULT;
     const ddepth = -1;
     cv.filter2D(src, dst, ddepth, kernel, anchor, border);
     cv.imshow('canvasOutput', dst);
+  }
+
+  /** Returns size depending on given custom filter 
+   * @param filter - custom filter
+   * 
+   * @returns unmber. If given filter is not custom filter it will return 1
+  */
+  private getCustomKernelSize(filter: Filter): number {
+    switch (filter) {
+      case Filter.CUSTOM_2x2: return 2
+      case Filter.CUSTOM_3x3: return 3
+      default: return 1;
+    }
   }
 
   private createCustomKernel(size = 2): cv.Mat {
