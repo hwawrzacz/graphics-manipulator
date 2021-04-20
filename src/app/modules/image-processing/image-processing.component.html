@@ -9,11 +9,18 @@
       <mat-form-field appearance="outline">
         <mat-label> Filter </mat-label>
         <mat-select formControlName="filter">
-          <mat-option *ngFor="let filter of filters" [value]="filter.value">{{ filter.label }}</mat-option>
+          <mat-optgroup>
+            <mat-label>Colors</mat-label>
+            <mat-option *ngFor="let filter of colorFilters" [value]="filter.value">{{ filter.label }}</mat-option>
+          </mat-optgroup>
+          <mat-optgroup>
+            <mat-label>Blur</mat-label>
+            <mat-option *ngFor="let filter of blurFilters" [value]="filter.value">{{ filter.label }}</mat-option>
+          </mat-optgroup>
         </mat-select>
       </mat-form-field>
 
-      <button mat-raised-button color="primary" (click)="applyFilter()"
+      <button mat-raised-button color="primary" (click)="transformImage()"
         [disabled]="!form.valid || !isImageLoaded">Process</button>
     </form>
 

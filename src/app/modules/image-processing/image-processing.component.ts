@@ -4,16 +4,8 @@ import { filter, map, switchMap, tap } from 'rxjs/operators';
 import * as cv from '@techstark/opencv-js'
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ImageDimensions } from 'src/app/model/image-dimensions';
-import { CALIB_THIN_PRISM_MODEL } from '@techstark/opencv-js';
-
-export enum Filter {
-  GRAYSCALE,
-}
-
-export interface PrintableFilter {
-  value: Filter;
-  label: string;
-}
+import { Filter, FilterCategory } from 'src/app/model/filter';
+import { FilterPrintable } from 'src/app/model/filter-printable';
 
 @Component({
   selector: 'app-image-processing',
@@ -21,10 +13,33 @@ export interface PrintableFilter {
   styleUrls: ['./image-processing.component.scss']
 })
 export class ImageProcessingComponent implements OnInit {
-  private readonly availableFilters = [
+  private readonly _blurFiltes = [
+    {
+      value: Filter.BLUR_3X3,
+      label: 'Slightly soft'
+    },
+    {
+      value: Filter.BLUR_7X7,
+      label: 'Medium soft'
+    },
+    {
+      value: Filter.BLUR_14x14,
+      label: 'Very soft'
+    },
+  ];
+
+  private readonly _colorFilters = [
+    {
+      value: Filter.NONE,
+      label: 'None'
+    },
     {
       value: Filter.GRAYSCALE,
       label: 'Gray scale'
+    },
+    {
+      value: Filter.LUV,
+      label: 'Luv palette'
     },
   ];
 
@@ -49,8 +64,12 @@ export class ImageProcessingComponent implements OnInit {
     return { width: this._canvasWidth, height: this._canvasHeight };
   }
 
-  get filters(): PrintableFilter[] {
-    return this.availableFilters;
+  get colorFilters(): FilterPrintable[] {
+    return this._colorFilters;
+  }
+
+  get blurFilters(): FilterPrintable[] {
+    return this._blurFiltes;
   }
   //#endregion
 
@@ -97,22 +116,78 @@ export class ImageProcessingComponent implements OnInit {
     this._isImageLoaded = true;
   }
 
-  public applyFilter(): void {
+  public transformImage(): void {
     const source = cv.imread('canvasInput');
     const destination = new cv.Mat();
-    const filter = this.getSelectedFilter();
-    cv.cvtColor(source, destination, filter, 0);
-    cv.imshow('canvasOutput', destination);
+    const selectedFilter = this._form!.get('filter')!.value as Filter;
+    this.handleFilterDependingOnCategory(selectedFilter, source, destination);
     source.delete();
     destination.delete();
   }
 
-  private getSelectedFilter(): cv.ColorConversionCodes {
-    const filter = this._form!.get('filter')!.value as Filter;
+  private handleFilterDependingOnCategory(filter: Filter, source: cv.Mat, destination: cv.Mat): void {
+    const filterCategory = this.getFilterCategory(filter);
+    switch (filterCategory) {
+      case FilterCategory.BLUR:
+        this.applyBlurFilter(filter, source, destination)
+        break;
+      case FilterCategory.COLOR:
+        this.applyColorFilter(filter, source, destination);
+        break;
+      default:
+      // Handle filter error 
+    }
+  }
 
+  private getFilterCategory(filter: Filter): FilterCategory {
+    switch (filter) {
+      case Filter.BLUR_3X3:
+      case Filter.BLUR_7X7:
+      case Filter.BLUR_14x14: return FilterCategory.BLUR;
+
+      case Filter.NONE:
+      case Filter.LUV:
+      case Filter.GRAYSCALE: return FilterCategory.COLOR;
+
+      default: return FilterCategory.UNKNOWN;
+    }
+  }
+
+  private applyBlurFilter(filter: Filter, src: cv.Mat, dst: cv.Mat): void {
+    const kernelSize = this.getBlurSize(filter);
+    const anchor = new cv.Point(-1, -1);
+    const border = cv.BORDER_DEFAULT;
+    const ddepth = -1; // -1 will make destination image depth the same as source depth
+    cv.blur(src, dst, kernelSize, anchor, border);
+    cv.imshow('canvasOutput', dst);
+  }
+
+  /** Returns size depending on given blur filter 
+   * @param filter - blur filter
+   * 
+   * @returns cv.Size. If given filter is not blur filter it will return Size(1, 1)
+  */
+  private getBlurSize(filter: Filter): cv.Size {
+    switch (filter) {
+      case Filter.BLUR_3X3: return new cv.Size(3, 3);
+      case Filter.BLUR_7X7: return new cv.Size(7, 7);
+      case Filter.BLUR_14x14: return new cv.Size(14, 14);
+      default: return new cv.Size(1, 1);
+    }
+  }
+
+  private applyColorFilter(filter: Filter, src: cv.Mat, dst: cv.Mat): void {
+    const filterCode = this.getFilterCode(filter);
+    cv.cvtColor(src, dst, filterCode, 0);
+    cv.imshow('canvasOutput', dst);
+  }
+
+  private getFilterCode(filter: Filter): cv.ColorConversionCodes {
     switch (filter) {
       case Filter.GRAYSCALE: return cv.COLOR_RGB2GRAY;
-      default: return cv.COLOR_RGB2Luv;
+      case Filter.LUV: return cv.COLOR_RGB2Luv;
+      case Filter.NONE: return cv.COLOR_RGB2RGBA;
+      default: return cv.COLOR_RGB2RGBA;
     }
   }
 
