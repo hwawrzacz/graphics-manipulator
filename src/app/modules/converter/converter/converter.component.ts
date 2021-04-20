@@ -30,6 +30,12 @@ export class ConverterComponent implements OnInit {
   private _rgbForm: FormGroup = {} as FormGroup;
   private _hsvForm: FormGroup = {} as FormGroup;
 
+  get colorPreview(): string {
+    return this._rgbForm
+      ? `rgb(${this.rgbForm.get('r')?.value},${this.rgbForm.get('g')?.value},${this.rgbForm.get('b')?.value})`
+      : 'black'
+  }
+
   get rgbForm(): FormGroup {
     return this._rgbForm;
   }
