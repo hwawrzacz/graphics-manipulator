@@ -1,6 +1,7 @@
 <div class="container">
+
   <!-- RGB form -->
-  <label for="rgbForm">RGB scheme</label>
+  <h3 for="rgbForm">RGB scheme</h3>
   <form id="rgbForm" [formGroup]="rgbForm">
     <mat-form-field appearance="outline">
       <span matPrefix class='color-prefix'>R</span>
@@ -16,8 +17,10 @@
     </mat-form-field>
   </form>
 
+  <div class="color-preview" [style.background-color]="colorPreview"></div>
+
   <!-- RGB form -->
-  <label for="hsvForm">HSV scheme</label>
+  <h3 for="hsvForm">HSV scheme</h3>
   <form id="hsvForm" [formGroup]="hsvForm">
     <mat-form-field appearance="outline">
       <span matPrefix class='color-prefix'>H</span>

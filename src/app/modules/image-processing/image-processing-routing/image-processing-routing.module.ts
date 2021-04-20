@@ -1,12 +1,12 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Routes } from '@angular/router';
-import { ConverterComponent } from 'src/app/modules/converter/converter/converter.component';
+import { ImageProcessingComponent } from 'src/app/modules/image-processing/image-processing.component';
 
 const routes: Routes = [
   {
     path: '',
-    component: ConverterComponent
+    component: ImageProcessingComponent
   },
   {
     path: '**',
@@ -23,4 +23,4 @@ const routes: Routes = [
   ],
   exports: [RouterModule]
 })
-export class ConverterRoutingModule { }
+export class ImageProcessingRoutingModule { }

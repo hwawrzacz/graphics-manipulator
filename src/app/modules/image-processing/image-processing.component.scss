@@ -1,0 +1,42 @@
+@use './../../../variables' as *;
+
+.wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 100vw;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+
+  padding: $spacing-medium;
+}
+
+app-image-uploader {
+  width: 100%;
+}
+
+.canvases-wrapper {
+  margin-top: $spacing-medium;
+  display: flex;
+  justify-content: center;
+  
+  canvas {
+    border: 2px solid #717386;
+    border-radius: 5px;
+  }
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: $spacing-medium;
+  
+  & > * {
+    width: 100%;
+  }
+}

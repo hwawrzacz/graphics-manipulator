@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ColorMode } from 'ngx-color-picker/lib/helpers';
 import { filter, tap } from 'rxjs/operators';
 
 interface RgbModel {
@@ -23,7 +22,6 @@ interface HsvModel {
 export class ConverterComponent implements OnInit {
   private readonly RGB_MIN = 0;
   private readonly RGB_MAX = 255;
-
   private readonly HSV_DEG_MIN = 0;
   private readonly HSV_DEG_MAX = 360;
   private readonly HSV_PERC_MIN = 0;
@@ -31,6 +29,12 @@ export class ConverterComponent implements OnInit {
 
   private _rgbForm: FormGroup = {} as FormGroup;
   private _hsvForm: FormGroup = {} as FormGroup;
+
+  get colorPreview(): string {
+    return this._rgbForm
+      ? `rgb(${this.rgbForm.get('r')?.value},${this.rgbForm.get('g')?.value},${this.rgbForm.get('b')?.value})`
+      : 'black'
+  }
 
   get rgbForm(): FormGroup {
     return this._rgbForm;

@@ -1,0 +1,34 @@
+<div class="wrapper">
+  <app-image-uploader (fileSelected)="loadFile($event)"></app-image-uploader>
+
+  <div class="canvases-wrapper">
+    <canvas #canvasInput id="canvasInput" [width]="canvasDimensions.width" [height]="canvasDimensions.height"
+      [style.width.px]="canvasDimensions.width" [style.height.px]="canvasDimensions.height"></canvas>
+
+    <form class="controls-wrapper" [formGroup]="form">
+      <mat-form-field appearance="outline">
+        <mat-label> Filter </mat-label>
+        <mat-select formControlName="filter">
+          <mat-optgroup>
+            <mat-label>Colors</mat-label>
+            <mat-option *ngFor="let filter of colorFilters" [value]="filter.value">{{ filter.label }}</mat-option>
+          </mat-optgroup>
+          <mat-optgroup>
+            <mat-label>Blur</mat-label>
+            <mat-option *ngFor="let filter of blurFilters" [value]="filter.value">{{ filter.label }}</mat-option>
+          </mat-optgroup>
+          <mat-optgroup>
+            <mat-label>Custom</mat-label>
+            <mat-option *ngFor="let filter of customFilters" [value]="filter.value">{{ filter.label }}</mat-option>
+          </mat-optgroup>
+        </mat-select>
+      </mat-form-field>
+
+      <button mat-raised-button color="primary" (click)="onTransformImage()"
+        [disabled]="!form.valid || !isImageLoaded">Process</button>
+    </form>
+
+    <canvas #canvasOutput id="canvasOutput" [width]="canvasDimensions.width" [height]="canvasDimensions.height"
+      [style.width.px]="canvasDimensions.width" [style.height.px]="canvasDimensions.height"></canvas>
+  </div>
+</div>
